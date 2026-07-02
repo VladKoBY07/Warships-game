@@ -6,9 +6,8 @@ Rectangle {
     anchors.fill: parent
     color: "#ffffff"
 
-    // Общий горизонтальный контейнер для двух полей
     Row {
-        spacing: 40 // Расстояние между вашим полем и полем врага
+        spacing: 40
         anchors.centerIn: parent
 
         // ================= ПОЛЕ ИГРОКА (СЛЕВА) =================
