@@ -1,0 +1,13 @@
+<RCC>
+    <qresource>
+        <file>qtquickcontrols2.conf</file>
+        <file>Warships_v0.qmlproject</file>
+        <file>Warships_v0/Constants.qml</file>
+        <file>Warships_v0/EventListModel.qml</file>
+        <file>Warships_v0/EventListSimulator.qml</file>
+        <file>Warships_v0/qmldir</file>
+        <file>Warships_v0Content/App.qml</file>
+        <file>Warships_v0Content/GameScreen.ui.qml</file>
+        <file>Warships_v0Content/Screen01.ui.qml</file>
+    </qresource>
+</RCC>
