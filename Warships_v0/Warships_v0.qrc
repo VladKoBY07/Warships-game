@@ -8,6 +8,8 @@
         <file>Warships_v0/qmldir</file>
         <file>Warships_v0Content/App.qml</file>
         <file>Warships_v0Content/GameScreen.ui.qml</file>
-        <file>Warships_v0Content/Screen01.ui.qml</file>
+        <file>Warships_v0Content/PlacementScreen.ui.qml</file>
+        <file>Warships_v0Content/ShipItem.qml</file>
+        <file>Warships_v0Content/StartMenu.ui.qml</file>
     </qresource>
 </RCC>

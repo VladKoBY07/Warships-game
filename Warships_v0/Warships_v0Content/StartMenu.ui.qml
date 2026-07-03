@@ -64,6 +64,4 @@ Rectangle {
             height: (parent.height - spacing) / 2
         }
     }
-
-    // Ряд кнопок по центру экрана
 }

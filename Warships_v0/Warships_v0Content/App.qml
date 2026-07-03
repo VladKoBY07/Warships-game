@@ -45,7 +45,7 @@ Window {
             anchors.fill: parent
 
             ItemDelegate {
-                text: qsTr("Page 1")
+                text: qsTr("StartMenu")
                 width: parent.width
                 onClicked: {
                     stackView.push("StartMenu.ui.qml")
@@ -53,7 +53,15 @@ Window {
                 }
             }
             ItemDelegate {
-                text: qsTr("Page 2")
+                text: qsTr("PlacementScreen")
+                width: parent.width
+                onClicked: {
+                    stackView.push("PlacementScreen.ui.qml")
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
+                text: qsTr("GameScreen")
                 width: parent.width
                 onClicked: {
                     stackView.push("GameScreen.ui.qml")
