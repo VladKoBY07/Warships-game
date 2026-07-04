@@ -1,1 +1,16 @@
 *.007b8ee
+
+build/
+*.user
+.qtcreator/
+*.qmlc
+*.jsc
+
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+.DS_Store
+Thumbs.db
