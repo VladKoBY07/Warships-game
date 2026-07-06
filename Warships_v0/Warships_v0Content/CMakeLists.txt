@@ -15,6 +15,7 @@ qt6_add_qml_module(Warships_v0Content
         "ShipItem.qml"
         QML_FILES StartMenu.qml
         QML_FILES NetworkPopup.qml
+        QML_FILES
 
 )
 
