@@ -12,33 +12,46 @@ Rectangle {
        id: networkPopup
     }
 
+    readonly property real refWidth: Screen.width
+    readonly property real refHeight: Screen.height
+
+    readonly property real ratio: Math.min(1, width / refWidth, height / refHeight)
+
     Text {
         id: title
         text: "WARSHIPS"
-        font.pointSize: 28
+        font.pointSize: 20 * startMenu.ratio
         font.bold: true
         font.family: "Verdana"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 50
+        anchors.topMargin: 50 * startMenu.ratio
     }
 
     GridLayout {
         id: grid
         columns: 2
         anchors.centerIn: parent
-        columnSpacing: 10
-        rowSpacing: 10
+        columnSpacing: 12 * startMenu.ratio
+        rowSpacing: 12 * startMenu.ratio
 
         Repeater {
             model: ["Одиночная игра", "Сетевая игра", "Магазин", "Выйти"]
 
             Button {
+                id: menuButton
                 text: modelData
-                Layout.preferredWidth: 200
-                Layout.preferredHeight: 60
-                font.pointSize: 16
+                font.pointSize: 13.5 * startMenu.ratio
                 font.bold: true
+
+                Layout.preferredWidth: startMenu.refWidth * 0.1275 * startMenu.ratio
+                Layout.preferredHeight: startMenu.refHeight * 0.0525 * startMenu.ratio
+
+                TextMetrics {
+                id: textMetrics
+                text: modelData
+                font: menuButton.font
+                }
 
                 onClicked: {
                     switch(index) {
