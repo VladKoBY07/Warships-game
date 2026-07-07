@@ -48,7 +48,7 @@ Window {
                 text: qsTr("StartMenu")
                 width: parent.width
                 onClicked: {
-                    stackView.push("StartMenu.ui.qml")
+                    stackView.push("StartMenu.qml")
                     drawer.close()
                 }
             }
@@ -56,7 +56,7 @@ Window {
                 text: qsTr("PlacementScreen")
                 width: parent.width
                 onClicked: {
-                    stackView.push("PlacementScreen.ui.qml")
+                    stackView.push(Qt.resolvedUrl("PlacementScreen.ui.qml"))
                     drawer.close()
                 }
             }
@@ -64,7 +64,7 @@ Window {
                 text: qsTr("GameScreen")
                 width: parent.width
                 onClicked: {
-                    stackView.push("GameScreen.ui.qml")
+                    stackView.push(Qt.resolvedUrl("GameScreen.qml"))
                     drawer.close()
                 }
             }

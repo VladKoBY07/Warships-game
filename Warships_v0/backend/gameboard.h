@@ -17,6 +17,8 @@ public:
     Q_INVOKABLE void removeShip(int x, int y, int length, bool horizontal);
     // Полностью очистить поле
     Q_INVOKABLE void clearBoard();
+    // Проверка есть ли корабль
+    Q_INVOKABLE bool cellOccupied(int x, int y) const;
 
 private:
     static const int BoardSize = 10;

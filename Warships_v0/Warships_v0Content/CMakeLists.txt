@@ -10,7 +10,7 @@ qt6_add_qml_module(Warships_v0Content
     RESOURCE_PREFIX "/qt/qml"
     QML_FILES
         "App.qml"
-        "GameScreen.ui.qml"
+        "GameScreen.qml"
         "PlacementScreen.ui.qml"
         "ShipItem.qml"
         QML_FILES StartMenu.qml

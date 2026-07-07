@@ -70,3 +70,9 @@ void GameBoard::removeShip(int x, int y, int length, bool horizontal)
         }
     }
 }
+
+bool GameBoard::cellOccupied(int x, int y) const {
+    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+        return false;
+    return m_cells[y][x];
+}

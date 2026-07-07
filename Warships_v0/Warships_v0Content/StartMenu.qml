@@ -57,12 +57,11 @@ Rectangle {
                     switch(index) {
                         case 0:
                             console.log("Запуск одиночной игры")
-                            // TODO: логика перехода к игровому полю
-                            // джиминишка предлагает сделать
-                            // через Loader а не через stackView
+                            stackView.push("PlacementScreen.ui.qml")
                             break;
                         case 1:
                             console.log("Запуск сетевой игры")
+                            // TODO: ввод имени -> открытие окна серверов (сделать окно серверов)
                             networkPopup.open()
                             break;
                         case 2:

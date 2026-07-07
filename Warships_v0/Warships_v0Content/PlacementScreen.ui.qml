@@ -7,6 +7,9 @@ Item {
     id: placementScreen
     anchors.fill: parent // размер под родителя, как у главного меню
 
+    //свойство для доступа к stackView
+    property StackView stackView: StackView.view
+
     // Текст верхней плашки (используется и на экране расстановки, и в анимации старта игры)
     property string overlayText: "Подготовка к бою"
 
@@ -151,8 +154,9 @@ Item {
 
                 if (allPlaced) {
                     waitingPopup.visible = true
-
-                    // TODO: Переход на экран боя (GameScreen_ui.qml) с передачей расстановки кораблей.
+                    // Переход на экран боя (GameScreen_ui.qml)
+                    placementScreen.stackView.push(Qt.resolvedUrl("GameScreen.qml"))
+                    waitingPopup.visible = false
                 } else {
                     warningToastAnimation.restart()
                 }

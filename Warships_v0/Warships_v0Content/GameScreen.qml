@@ -7,7 +7,6 @@ Rectangle {
     anchors.fill: parent
     color: "#ffffff"
 
-    //Todo: прописать данные полученные он PlacementScreen
     //Todo: Это строка состояния хода вы должны подключить её к логике
     //можете менять текст в qml так -> gameScreen.turnText = "Ход противника"
     property string turnText: "Ваш ход"
@@ -88,22 +87,50 @@ Rectangle {
                     border.color: "#BDBDBD"
                     border.width: 1
 
-                    Grid {
-                        id: myGrid
-                        anchors.fill: parent
-                        rows: 10
-                        columns: 10
+                    property int cols: 10
+                    property int rows: 10
+                    property int cellSize: 40
 
-                        Repeater {
-                            model: 100
-                            Rectangle {
-                                width: 40
-                                height: 40
-                                border.color: "#EEEEEE"
-                                border.width: 1
-                                // На нашем поле корабли видны
-                                // TODO: перенести расстановку кораблей с той страницы сюда
-                            }
+                    // фон-сетка
+                    Repeater {
+                        model: myBoard.rows
+                        Rectangle {
+                            width: myBoard.width
+                            height: myBoard.cellSize
+                            y: index * myBoard.cellSize
+                            color: "transparent"
+                            border.color: "#EEEEEE"
+                            border.width: 1
+                        }
+                    }
+
+                    Repeater {
+                        model: myBoard.cols
+                        Rectangle {
+                            width: myBoard.cellSize
+                            height: myBoard.height
+                            x: index * myBoard.cellSize
+                            color: "transparent"
+                            border.color: "#EEEEEE"
+                            border.width: 1
+                        }
+                    }
+
+                    // логические клетки: показываем корабли игрока
+                    Repeater {
+                        model: myBoard.rows * myBoard.cols
+                        Rectangle {
+                            width: myBoard.cellSize
+                            height: myBoard.cellSize
+                            x: (index % myBoard.cols) * myBoard.cellSize
+                            y: Math.floor(index / myBoard.cols) * myBoard.cellSize
+
+                            // пример: цвет по данным GameBoard (корабль/пусто)
+                            color: gameBoard.cellOccupied(index % myBoard.cols,
+                                                          Math.floor(index / myBoard.cols))
+                                   ? "#4CAF50" : "transparent"
+
+                            border.color: "transparent"
                         }
                     }
                 }
@@ -129,35 +156,57 @@ Rectangle {
                     border.color: "#BDBDBD"
                     border.width: 1
 
-                    Grid {
-                        id: enemyGrid
-                        anchors.fill: parent
-                        rows: 10
-                        columns: 10
+                    property int cols: 10
+                    property int rows: 10
+                    property int cellSize: 40
 
-                        Repeater {
-                            model: 100
-                            Rectangle {
-                                id: enemyCell
-                                width: 40
-                                height: 40
-                                border.color: "#EEEEEE"
-                                border.width: 1
-                                // Поле противника для игрока визуально ВСЕГДА пустое —
-                                // корабли противника (enemyBoardState) здесь не отображаются,
-                                // видны только результаты выстрелов (попадание/промах).
-                                color: enemyMouse.pressed ? "#F44336" : "#FFFFFF" //не знаю нужно ли (перекрашивает в крастный при нажатии)
+                    // фон-сетка
+                    Repeater {
+                        model: enemyBoard.rows
+                        Rectangle {
+                            width: enemyBoard.width
+                            height: enemyBoard.cellSize
+                            y: index * enemyBoard.cellSize
+                            color: "transparent"
+                            border.color: "#EEEEEE"
+                            border.width: 1
+                        }
+                    }
 
-                                MouseArea { // нужна для обработки выстрелов
-                                    id: enemyMouse
-                                    anchors.fill: parent
-                                    //onClicked: {
-                                        // TODO: прописать в gameboard.cpp функцию выстрела,
-                                        // например gameBoard.shoot(x, y), возвращающую результат
-                                        // (промах / попадание / убит корабль), и по этому результату
-                                        // менять цвет клетки на постоянной основе (а не только по pressed),
-                                        // а также передавать ход второму игроку (обновлять turnText).
-                                    //}
+                    Repeater {
+                        model: enemyBoard.cols
+                        Rectangle {
+                            width: enemyBoard.cellSize
+                            height: enemyBoard.height
+                            x: index * enemyBoard.cellSize
+                            color: "transparent"
+                            border.color: "#EEEEEE"
+                            border.width: 1
+                        }
+                    }
+
+                    // клетки для стрельбы по врагу
+                    Repeater {
+                        model: enemyBoard.rows * enemyBoard.cols
+                        Rectangle {
+                            id: enemyCell
+                            width: enemyBoard.cellSize
+                            height: enemyBoard.cellSize
+                            x: (index % enemyBoard.cols) * enemyBoard.cellSize
+                            y: Math.floor(index / enemyBoard.cols) * enemyBoard.cellSize
+
+                            color: "transparent"
+                            border.color: "transparent"
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    var cellX = index % enemyBoard.cols
+                                    var cellY = Math.floor(index / enemyBoard.cols)
+                                    // TODO:
+                                    // gameBoard.shootEnemy(cellX, cellY)
+                                    // и обновить визуальное состояние клетки (попадание/промах),
+                                    // а также обновить gameScreen.turnText
                                 }
                             }
                         }
