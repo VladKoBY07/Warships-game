@@ -1,16 +1,23 @@
 #include "gameboard.h"
+#include <QDebug>
 
 GameBoard::GameBoard(QObject *parent)
     : QObject{parent}
 {
-    clearBoard();
+    clearBoards();
 }
 
-void GameBoard::clearBoard()
+void GameBoard::clearBoards()
 {
     for (int row = 0; row < BoardSize; ++row) {
         for (int col = 0; col < BoardSize; ++col) {
-            m_cells[row][col] = false;
+            m_cells[row][col] = cellStatus::Clean;
+        }
+    }
+
+    for (int row = 0; row < BoardSize; ++row) {
+        for (int col = 0; col < BoardSize; ++col) {
+            e_cells[row][col] = cellStatus::Clean;
         }
     }
 }
@@ -26,7 +33,7 @@ bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
             return false;
         // Проверка клеток корабля
         for (int i = 0; i < length; ++i) {
-            if (m_cells[y][x + i])
+            if (m_cells[y][x + i] != cellStatus::Clean)
                 return false;
         }
         // Проверка зоны вокруг корабля
@@ -37,7 +44,7 @@ bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
 
         for (int yy = startY; yy <= endY; ++yy) {
             for (int xx = startX; xx <= endX; ++xx) {
-                if (m_cells[yy][xx])
+                if (m_cells[yy][xx] != cellStatus::Clean)
                     return false;
             }
         }
@@ -46,7 +53,7 @@ bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
             return false;
         // Проверка клеток корабля
         for (int i = 0; i < length; ++i) {
-            if (m_cells[y + i][x])
+            if (m_cells[y + i][x] != cellStatus::Clean)
                 return false;
         }
         // Проверка зоны вокруг корабля
@@ -57,7 +64,7 @@ bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
 
         for (int yy = startY; yy <= endY; ++yy) {
             for (int xx = startX; xx <= endX; ++xx) {
-                if (m_cells[yy][xx])
+                if (m_cells[yy][xx] != cellStatus::Clean)
                     return false;
             }
         }
@@ -73,11 +80,11 @@ void GameBoard::placeShip(int x, int y, int length, bool horizontal)
 
     if (horizontal) {
         for (int i = 0; i < length; ++i) {
-            m_cells[y][x + i] = true;
+            m_cells[y][x + i] = cellStatus::Ship;
         }
     } else {
         for (int i = 0; i < length; ++i) {
-            m_cells[y + i][x] = true;
+            m_cells[y + i][x] = cellStatus::Ship;
         }
     }
 }
@@ -88,13 +95,13 @@ void GameBoard::removeShip(int x, int y, int length, bool horizontal)
         for (int i = 0; i < length; ++i) {
             int cx = x + i;
             if (cx >= 0 && cx < BoardSize && y >= 0 && y < BoardSize)
-                m_cells[y][cx] = false;
+                m_cells[y][cx] = cellStatus::Clean;
         }
     } else {
         for (int i = 0; i < length; ++i) {
             int cy = y + i;
             if (x >= 0 && x < BoardSize && cy >= 0 && cy < BoardSize)
-                m_cells[cy][x] = false;
+                m_cells[cy][x] = cellStatus::Clean;
         }
     }
 }
@@ -102,5 +109,39 @@ void GameBoard::removeShip(int x, int y, int length, bool horizontal)
 bool GameBoard::cellOccupied(int x, int y) const {
     if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
         return false;
-    return m_cells[y][x];
+    return m_cells[y][x] != cellStatus::Clean;
+}
+
+// статус клеток
+int GameBoard::myCellStatusAt(int x, int y) const
+{
+    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+        return static_cast<int>(cellStatus::Clean);
+    return static_cast<int>(m_cells[y][x]);
+}
+int GameBoard::enemyCellStatusAt(int x, int y) const
+{
+    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+        return static_cast<int>(cellStatus::Clean);
+    return static_cast<int>(e_cells[y][x]);
+}
+
+// атака
+void GameBoard::registerEnemyAnswer(int x, int y, int status)
+{
+    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+        return;
+
+    cellStatus &cell = e_cells[y][x];
+
+    if (status == static_cast<int>(answerStatus::Miss)) {
+        cell = cellStatus::Shot;
+    } else if (status == static_cast<int>(answerStatus::Hit)) {
+        cell = cellStatus::Damaged;
+    } else if (status == static_cast<int>(answerStatus::Kill)) {
+        cell = cellStatus::Killed;
+    }
+
+    qDebug() << "registerEnemyAnswer called" << x << y << status;
+    qDebug() << "enemy cell now =" << static_cast<int>(cell);
 }

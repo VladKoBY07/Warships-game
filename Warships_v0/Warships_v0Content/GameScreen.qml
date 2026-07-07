@@ -1,18 +1,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
+import Warships 1.0
 
 Rectangle {
     id: gameScreen
     anchors.fill: parent
     color: "#ffffff"
 
-    //Todo: Это строка состояния хода вы должны подключить её к логике
-    //можете менять текст в qml так -> gameScreen.turnText = "Ход противника"
+    // строка состояния боя
     property string turnText: "Ваш ход"
 
     // TODO: прописать в gameboard.cpp функцию получения состояния поля
     // противника, через сервер например getEnemyBoardState()
+    // Tip: норм, сделаем после сервера, заготовка в функции отрисовки ниже
 
     Item {
         id: gameContent
@@ -125,11 +126,22 @@ Rectangle {
                             x: (index % myBoard.cols) * myBoard.cellSize
                             y: Math.floor(index / myBoard.cols) * myBoard.cellSize
 
-                            // пример: цвет по данным GameBoard (корабль/пусто)
-                            color: gameBoard && gameBoard.cellOccupied(index % myBoard.cols,
-                                        Math.floor(index / myBoard.cols)) ? "#4CAF50" : "transparent"
+                            // отрисовка статусов клеток
+                            color: {
+                                var col = index % myBoard.cols
+                                var row = Math.floor(index / myBoard.cols)
+                                var st = gameBoard.myCellStatusAt(col, row);
 
-                            border.color: "transparent"
+                                // 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed
+                                if (st === 0)   return "transparent"; // Clean
+                                if (st === 1)   return "#90CAF9";     // Ship (мои корабли)
+                                if (st === 2)   return "#B0BEC5";     // Shot (промах противника)
+                                if (st === 3)   return "#FF7043";     // Damaged (подбит)
+                                if (st === 4)   return "#D32F2F";     // Killed (убит)
+                                return "transparent";
+                            }
+
+                            border.color: "transparent";
                         }
                     }
                 }
@@ -194,18 +206,50 @@ Rectangle {
                             x: (index % enemyBoard.cols) * enemyBoard.cellSize
                             y: Math.floor(index / enemyBoard.cols) * enemyBoard.cellSize
 
-                            color: "transparent"
+                            // отрисовка состояния вражеских клеток
+                            color: {
+                                var cx = index % enemyBoard.cols
+                                var cy = Math.floor(index / enemyBoard.cols)
+                                var st = gameBoard.enemyCellStatusAt(cx, cy);
+
+                                console.log("enemyCell", cx, cy, "status", st);
+
+                                // 0 Clean, 2 Shot, 3 Damaged, 4 Killed
+                                if (st === 0)   return "transparent"; // ещё не стреляли
+                                if (st === 2)   return "#B0BEC5";     // промах
+                                if (st === 3)   return "#FF7043";     // попадание
+                                if (st === 4)   return "#D32F2F";     // убит
+                                return "transparent";
+                            }
                             border.color: "transparent"
 
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
+                                    console.log("Enemy cell clicked", index)
                                     var cellX = index % enemyBoard.cols
                                     var cellY = Math.floor(index / enemyBoard.cols)
-                                    // TODO:
-                                    // gameBoard.shootEnemy(cellX, cellY)
-                                    // и обновить визуальное состояние клетки (попадание/промах),
-                                    // а также обновить gameScreen.turnText
+
+                                    var result = 0; // Miss
+                                    gameBoard.registerEnemyAnswer(cellX, cellY, result)
+
+                                    // красим текущую клетку сразу, независимо от биндинга
+                                    if (result === 0) {            // Miss
+                                        enemyCell.color = "#B0BEC5"
+                                    } else if (result === 1) {     // Hit
+                                        enemyCell.color = "#FF7043"
+                                    } else if (result === 2) {     // Kill
+                                        enemyCell.color = "#D32F2F"
+                                    }
+
+                                    // текст хода
+                                    if (result === 0) {
+                                        gameScreen.turnText = "Ход противника"
+                                    } else if (result === 1) {
+                                        gameScreen.turnText = "Вы попали! Стреляйте снова"
+                                    } else if (result === 2) {
+                                        gameScreen.turnText = "Корабль потоплен!"
+                                    }
                                 }
                             }
                         }

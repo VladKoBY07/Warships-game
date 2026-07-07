@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlEngine>
 
 #include "autogen/environment.h"
 #include "backend/gameboard.h"
@@ -14,6 +15,11 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+
+    qmlRegisterUncreatableType<GameBoard>(
+        "Warships", 1, 0, "GameBoard",
+        "GameBoard is only used for enums and static access"
+        );
 
     GameBoard gameBoard;
     engine.rootContext()->setContextProperty("gameBoard", &gameBoard);

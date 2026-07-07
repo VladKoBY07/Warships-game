@@ -171,15 +171,10 @@ Item {
             anchors.horizontalCenter: board.horizontalCenter
         }
 
-        // Логика "Очистить": чистим модель поля, мгновенно (без анимации)
-        // возвращаем корабли в док. JS/циклы — только внутри Connections (правило .ui.qml).
-
-        //Не знаю нужно менять или нет вроде работа с координатами а вроде и функция была похожая
-
         Connections {
             target: clearButton
             function onClicked() {
-                gameBoard.clearBoard()
+                gameBoard.clearBoards()
 
                 for (var i = 0; i < shipRepeater.count; ++i) {
                     var shipItem = shipRepeater.itemAt(i)
