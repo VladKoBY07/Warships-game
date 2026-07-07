@@ -21,7 +21,8 @@ qt_standard_project_setup()
 
 
 qt_add_executable(${CMAKE_PROJECT_NAME}
-    backend/gameboard.h backend/gameboard.cpp)
+    backend/gameboard.h backend/gameboard.cpp
+    backend/ai_player.h backend/ai_player.cpp)
 qt_add_resources(${CMAKE_PROJECT_NAME} "configuration"
     PREFIX "/"
     FILES
