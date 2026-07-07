@@ -126,9 +126,8 @@ Rectangle {
                             y: Math.floor(index / myBoard.cols) * myBoard.cellSize
 
                             // пример: цвет по данным GameBoard (корабль/пусто)
-                            color: gameBoard.cellOccupied(index % myBoard.cols,
-                                                          Math.floor(index / myBoard.cols))
-                                   ? "#4CAF50" : "transparent"
+                            color: gameBoard && gameBoard.cellOccupied(index % myBoard.cols,
+                                        Math.floor(index / myBoard.cols)) ? "#4CAF50" : "transparent"
 
                             border.color: "transparent"
                         }

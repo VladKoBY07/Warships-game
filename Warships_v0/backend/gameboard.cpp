@@ -17,24 +17,52 @@ void GameBoard::clearBoard()
 
 bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
 {
+    // Проверки границ
     if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
         return false;
 
     if (horizontal) {
         if (x + length > BoardSize)
             return false;
+        // Проверка клеток корабля
         for (int i = 0; i < length; ++i) {
             if (m_cells[y][x + i])
                 return false;
         }
+        // Проверка зоны вокруг корабля
+        int startX = std::max(0, x - 1);
+        int endX   = std::min(BoardSize - 1, x + length);
+        int startY = std::max(0, y - 1);
+        int endY   = std::min(BoardSize - 1, y + 1);
+
+        for (int yy = startY; yy <= endY; ++yy) {
+            for (int xx = startX; xx <= endX; ++xx) {
+                if (m_cells[yy][xx])
+                    return false;
+            }
+        }
     } else {
         if (y + length > BoardSize)
             return false;
+        // Проверка клеток корабля
         for (int i = 0; i < length; ++i) {
             if (m_cells[y + i][x])
                 return false;
         }
+        // Проверка зоны вокруг корабля
+        int startX = std::max(0, x - 1);
+        int endX   = std::min(BoardSize - 1, x + 1);
+        int startY = std::max(0, y - 1);
+        int endY   = std::min(BoardSize - 1, y + length);
+
+        for (int yy = startY; yy <= endY; ++yy) {
+            for (int xx = startX; xx <= endX; ++xx) {
+                if (m_cells[yy][xx])
+                    return false;
+            }
+        }
     }
+
     return true;
 }
 
