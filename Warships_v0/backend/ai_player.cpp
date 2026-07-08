@@ -35,3 +35,95 @@ void ai_player::generateRandomPlacement()
         }
     }
 }
+
+int ai_player::receiveAttack(int x, int y)
+{// 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed
+    if (aiBoard.m_cells[x][y] == GameBoard::cellStatus::Ship)
+    {
+        int rx = x;
+        int ry = y;
+        //left
+        while (rx > 0)
+        {
+            rx -= 1;
+            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Clean ||
+                aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Shot)
+                break;
+
+            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Ship)
+            {
+                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
+                return static_cast<int>(GameBoard::cellStatus::Damaged);
+            }
+        }
+        rx = x;
+
+        //right
+        while (rx < 9)
+        {
+            rx += 1;
+            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Clean ||
+                aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Shot)
+                break;
+
+            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Ship)
+            {
+                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
+                return static_cast<int>(GameBoard::cellStatus::Damaged);
+            }
+        }
+
+        //up
+        while (ry > 0)
+        {
+            ry -= 1;
+            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Clean ||
+                aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Shot)
+                break;
+
+            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Ship)
+            {
+                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
+                return static_cast<int>(GameBoard::cellStatus::Damaged);
+            }
+        }
+
+        ry = y;
+
+        //down
+        while (ry < 9)
+        {
+            ry += 1;
+            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Clean ||
+                aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Shot)
+                break;
+
+            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Ship)
+            {
+                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
+                return static_cast<int>(GameBoard::cellStatus::Damaged);
+            }
+        }
+
+        return static_cast<int>(GameBoard::cellStatus::Killed);
+    }
+    return static_cast<int>(aiBoard.myCellStatusAt(x, y));
+}
+
+void ai_player::calculateShoot(int& x, int& y)
+{
+    // TODO: Мішаня набацает ходы
+    x = 1;
+    y = 1;
+}
+
+void ai_player::performAttack()
+{
+    int x, y;
+    calculateShoot(x, y);
+    // вызов функции у gameboard, запись ответа
+
+}
+
+
+

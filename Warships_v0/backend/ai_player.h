@@ -14,6 +14,14 @@ public:
 
     Q_INVOKABLE void generateRandomPlacement();
 
+    Q_INVOKABLE int receiveAttack(int x, int y);
+
+    void calculateShoot(int& x, int& y);
+
+    Q_INVOKABLE void performAttack();
+
+
+
 };
 
 #endif // AI_PLAYER_H
