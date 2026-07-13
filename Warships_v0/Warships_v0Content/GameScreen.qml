@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
-import Warships 1.0
 
 Rectangle {
     id: gameScreen

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Warships 1.0
 
 Rectangle {
     id: startMenu
@@ -57,10 +58,12 @@ Rectangle {
                     switch(index) {
                         case 0:
                             console.log("Запуск одиночной игры")
+                            gameController.gamemode = GameController.PvAI_mode
                             stackView.push("PlacementScreen.ui.qml")
                             break;
                         case 1:
                             console.log("Запуск сетевой игры")
+                            gameController.gamemode = GameController.Local_mode
                             // TODO: ввод имени -> открытие окна серверов (сделать окно серверов)
                             networkPopup.open()
                             break;

@@ -1,6 +1,3 @@
-// Copyright (C) 2024 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
-
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -8,6 +5,8 @@
 
 #include "autogen/environment.h"
 #include "backend/gameboard.h"
+#include "backend/ai_player.h"
+#include "backend/gamecontroller.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,13 +15,17 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    qmlRegisterUncreatableType<GameBoard>(
-        "Warships", 1, 0, "GameBoard",
-        "GameBoard is only used for enums and static access"
+    qmlRegisterUncreatableType<GameController>(
+        "Warships", 1, 0,
+        "GameController",
+        "GameController is exposed as context property"
         );
 
     GameBoard gameBoard;
+    ai_player ai;
+    GameController gameController(&gameBoard, &ai);
     engine.rootContext()->setContextProperty("gameBoard", &gameBoard);
+    engine.rootContext()->setContextProperty("gameController", &gameController);
 
     const QUrl url(mainQmlFile);
     QObject::connect(

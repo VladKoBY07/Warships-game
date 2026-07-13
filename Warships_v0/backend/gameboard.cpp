@@ -126,7 +126,7 @@ int GameBoard::enemyCellStatusAt(int x, int y) const
     return static_cast<int>(e_cells[y][x]);
 }
 
-// атака
+// регистрация атаки на вражеское поле
 void GameBoard::registerEnemyAnswer(int x, int y, int result)
 {
     if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
@@ -150,6 +150,6 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
     ++m_enemyBoardRevision;
     emit enemyBoardChanged();
 
-    qDebug() << "registerEnemyAnswer called" << x << y << result;
+    qDebug() << "<C++> registerEnemyAnswer called" << x << y << result;
     qDebug() << "enemy cell now =" << static_cast<int>(cell);
 }

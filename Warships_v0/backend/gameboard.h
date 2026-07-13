@@ -51,7 +51,6 @@ public:
     Q_INVOKABLE void registerEnemyAnswer(int x, int y, int result);
     // обновление вражеского поля
     Q_PROPERTY(int enemyBoardRevision READ enemyBoardRevision NOTIFY enemyBoardChanged)
-    int m_enemyBoardRevision = 0;
     int enemyBoardRevision() const { return m_enemyBoardRevision; }
 signals:
     void enemyBoardChanged();
@@ -59,6 +58,7 @@ signals:
 private:
     cellStatus m_cells[BoardSize][BoardSize]; // my cells
     cellStatus e_cells[BoardSize][BoardSize]; // enemys cells
+    int m_enemyBoardRevision = 0;
 };
 
 #endif // GAMEBOARD_H
