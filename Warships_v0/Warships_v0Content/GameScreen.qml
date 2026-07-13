@@ -208,11 +208,12 @@ Rectangle {
 
                             // отрисовка состояния вражеских клеток
                             color: {
+                                gameBoard.enemyBoardRevision; // зависимость от enemyBoardRevision
                                 var cx = index % enemyBoard.cols
                                 var cy = Math.floor(index / enemyBoard.cols)
                                 var st = gameBoard.enemyCellStatusAt(cx, cy);
 
-                                console.log("enemyCell", cx, cy, "status", st);
+                                //console.log("enemyCell", cx, cy, "status", st);
 
                                 // 0 Clean, 2 Shot, 3 Damaged, 4 Killed
                                 if (st === 0)   return "transparent"; // ещё не стреляли
@@ -230,23 +231,15 @@ Rectangle {
                                     var cellX = index % enemyBoard.cols
                                     var cellY = Math.floor(index / enemyBoard.cols)
 
-                                    var result = 0; // Miss
-                                    gameBoard.registerEnemyAnswer(cellX, cellY, result)
-
-                                    // красим текущую клетку сразу, независимо от биндинга
-                                    if (result === 0) {            // Miss
-                                        enemyCell.color = "#B0BEC5"
-                                    } else if (result === 1) {     // Hit
-                                        enemyCell.color = "#FF7043"
-                                    } else if (result === 2) {     // Kill
-                                        enemyCell.color = "#D32F2F"
-                                    }
+                                    // проведение удара
+                                    var result = 1;
+                                    gameBoard.registerEnemyAnswer(cellX, cellY, result);
 
                                     // текст хода
                                     if (result === 0) {
                                         gameScreen.turnText = "Ход противника"
                                     } else if (result === 1) {
-                                        gameScreen.turnText = "Вы попали! Стреляйте снова"
+                                        gameScreen.turnText = "Стреляйте снова"
                                     } else if (result === 2) {
                                         gameScreen.turnText = "Корабль потоплен!"
                                     }

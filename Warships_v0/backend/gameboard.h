@@ -47,8 +47,14 @@ public:
     Q_INVOKABLE int enemyCellStatusAt(int x, int y) const;
 
     // Действия:
-    // атака
-    Q_INVOKABLE void registerEnemyAnswer(int x, int y, int status);
+    // регистрация ответа противника
+    Q_INVOKABLE void registerEnemyAnswer(int x, int y, int result);
+    // обновление вражеского поля
+    Q_PROPERTY(int enemyBoardRevision READ enemyBoardRevision NOTIFY enemyBoardChanged)
+    int m_enemyBoardRevision = 0;
+    int enemyBoardRevision() const { return m_enemyBoardRevision; }
+signals:
+    void enemyBoardChanged();
 
 private:
     cellStatus m_cells[BoardSize][BoardSize]; // my cells

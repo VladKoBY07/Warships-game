@@ -127,21 +127,29 @@ int GameBoard::enemyCellStatusAt(int x, int y) const
 }
 
 // атака
-void GameBoard::registerEnemyAnswer(int x, int y, int status)
+void GameBoard::registerEnemyAnswer(int x, int y, int result)
 {
     if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
         return;
 
     cellStatus &cell = e_cells[y][x];
 
-    if (status == static_cast<int>(answerStatus::Miss)) {
+    switch (result) {
+    case static_cast<int>(answerStatus::Miss):
         cell = cellStatus::Shot;
-    } else if (status == static_cast<int>(answerStatus::Hit)) {
+        break;
+    case static_cast<int>(answerStatus::Hit):
         cell = cellStatus::Damaged;
-    } else if (status == static_cast<int>(answerStatus::Kill)) {
+        break;
+    case static_cast<int>(answerStatus::Kill):
         cell = cellStatus::Killed;
+    default:
+        break;
     }
 
-    qDebug() << "registerEnemyAnswer called" << x << y << status;
+    ++m_enemyBoardRevision;
+    emit enemyBoardChanged();
+
+    qDebug() << "registerEnemyAnswer called" << x << y << result;
     qDebug() << "enemy cell now =" << static_cast<int>(cell);
 }

@@ -11,12 +11,10 @@ qt6_add_qml_module(Warships_v0Content
     QML_FILES
         "App.qml"
         "GameScreen.qml"
+        "NetworkPopup.qml"
         "PlacementScreen.ui.qml"
         "ShipItem.qml"
-        QML_FILES StartMenu.qml
-        QML_FILES NetworkPopup.qml
-        QML_FILES
-
+        "StartMenu.qml"
 )
 
 
