@@ -203,7 +203,13 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
     if (cell == newStatus)
         return;
 
-    cell = newStatus;
+    // обозначить корабль при убийстве
+    if(newStatus == cellStatus::Killed){
+        kill_enemys_ship(x, y);
+        qDebug() << "cpp: <GameBoard> Корабль врага убит в " << x << " " << y;
+    } else {
+        cell = newStatus;
+    }
 
     notifyBoardChanged();
 
@@ -212,4 +218,251 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
 
     qDebug() << "enemy cell now ="
              << static_cast<int>(cell);
+}
+
+void GameBoard::kill_enemys_ship(int x, int y)
+{
+    // Проверка начальных координат
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
+        return;
+    }
+
+    // Центральная клетка уничтоженного корабля
+    e_cells[y][x] = cellStatus::Killed;
+
+    // Ищем повреждённые клетки влево
+    int rx = x - 1;
+
+    while (rx >= 0 &&
+           e_cells[y][rx] == cellStatus::Damaged) {
+
+        e_cells[y][rx] = cellStatus::Killed;
+        --rx;
+    }
+
+    // Ищем повреждённые клетки вправо
+    rx = x + 1;
+
+    while (rx < BoardSize &&
+           e_cells[y][rx] == cellStatus::Damaged) {
+
+        e_cells[y][rx] = cellStatus::Killed;
+        ++rx;
+    }
+
+    // Ищем повреждённые клетки вверх
+    int ry = y - 1;
+
+    while (ry >= 0 &&
+           e_cells[ry][x] == cellStatus::Damaged) {
+
+        e_cells[ry][x] = cellStatus::Killed;
+        --ry;
+    }
+
+    // Ищем повреждённые клетки вниз
+    ry = y + 1;
+
+    while (ry < BoardSize &&
+           e_cells[ry][x] == cellStatus::Damaged) {
+
+        e_cells[ry][x] = cellStatus::Killed;
+        ++ry;
+    }
+
+    // Границы конкретного корабля
+    int startX = x;
+    int endX = x;
+    int startY = y;
+    int endY = y;
+
+    // Проверяем, есть ли часть корабля слева или справа
+    const bool horizontal =
+        (x > 0 &&
+         e_cells[y][x - 1] == cellStatus::Killed) ||
+        (x < BoardSize - 1 &&
+         e_cells[y][x + 1] == cellStatus::Killed);
+
+    if (horizontal) {
+        // Находим левую границу корабля
+        while (startX > 0 &&
+               e_cells[y][startX - 1] == cellStatus::Killed) {
+            --startX;
+        }
+
+        // Находим правую границу корабля
+        while (endX < BoardSize - 1 &&
+               e_cells[y][endX + 1] == cellStatus::Killed) {
+            ++endX;
+        }
+
+        // Обводим горизонтальный корабль
+        for (int row = y - 1; row <= y + 1; ++row) {
+            for (int col = startX - 1; col <= endX + 1; ++col) {
+                if (row < 0 || col < 0 ||
+                    row >= BoardSize || col >= BoardSize) {
+                    continue;
+                }
+
+                // Shot означает промах
+                // Не затираем Killed, Damaged и уже существующий Shot
+                if (e_cells[row][col] == cellStatus::Clean) {
+                    e_cells[row][col] = cellStatus::Shot;
+                }
+            }
+        }
+    } else {
+        // Вертикальный корабль или корабль длиной 1
+
+        // Находим верхнюю границу корабля
+        while (startY > 0 &&
+               e_cells[startY - 1][x] == cellStatus::Killed) {
+            --startY;
+        }
+
+        // Находим нижнюю границу корабля
+        while (endY < BoardSize - 1 &&
+               e_cells[endY + 1][x] == cellStatus::Killed) {
+            ++endY;
+        }
+
+        // Обводим вертикальный корабль
+        for (int row = startY - 1; row <= endY + 1; ++row) {
+            for (int col = x - 1; col <= x + 1; ++col) {
+                if (row < 0 || col < 0 ||
+                    row >= BoardSize || col >= BoardSize) {
+                    continue;
+                }
+
+                if (e_cells[row][col] == cellStatus::Clean) {
+                    e_cells[row][col] = cellStatus::Shot;
+                }
+            }
+        }
+    }
+}
+
+void GameBoard::kill_my_ship(int x, int y)
+{
+    // Проверка начальных координат
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
+        return;
+    }
+
+    // Центральная клетка уничтоженного корабля
+    m_cells[y][x] = cellStatus::Killed;
+
+    // Ищем повреждённые клетки влево
+    int rx = x - 1;
+
+    while (rx >= 0 &&
+           m_cells[y][rx] == cellStatus::Damaged) {
+
+        m_cells[y][rx] = cellStatus::Killed;
+        --rx;
+    }
+
+    // Ищем повреждённые клетки вправо
+    rx = x + 1;
+
+    while (rx < BoardSize &&
+           m_cells[y][rx] == cellStatus::Damaged) {
+
+        m_cells[y][rx] = cellStatus::Killed;
+        ++rx;
+    }
+
+    // Ищем повреждённые клетки вверх
+    int ry = y - 1;
+
+    while (ry >= 0 &&
+           m_cells[ry][x] == cellStatus::Damaged) {
+
+        m_cells[ry][x] = cellStatus::Killed;
+        --ry;
+    }
+
+    // Ищем повреждённые клетки вниз
+    ry = y + 1;
+
+    while (ry < BoardSize &&
+           m_cells[ry][x] == cellStatus::Damaged) {
+
+        m_cells[ry][x] = cellStatus::Killed;
+        ++ry;
+    }
+
+    // Границы конкретного корабля
+    int startX = x;
+    int endX = x;
+    int startY = y;
+    int endY = y;
+
+    // Проверяем, есть ли часть корабля слева или справа
+    const bool horizontal =
+        (x > 0 &&
+         m_cells[y][x - 1] == cellStatus::Killed) ||
+        (x < BoardSize - 1 &&
+         m_cells[y][x + 1] == cellStatus::Killed);
+
+    if (horizontal) {
+        // Находим левую границу корабля
+        while (startX > 0 &&
+               m_cells[y][startX - 1] == cellStatus::Killed) {
+            --startX;
+        }
+
+        // Находим правую границу корабля
+        while (endX < BoardSize - 1 &&
+               m_cells[y][endX + 1] == cellStatus::Killed) {
+            ++endX;
+        }
+
+        // Обводим горизонтальный корабль
+        for (int row = y - 1; row <= y + 1; ++row) {
+            for (int col = startX - 1; col <= endX + 1; ++col) {
+                if (row < 0 || col < 0 ||
+                    row >= BoardSize || col >= BoardSize) {
+                    continue;
+                }
+
+                // Shot означает промах
+                // Не затираем Killed, Damaged и Shot
+                if (m_cells[row][col] == cellStatus::Clean) {
+                    m_cells[row][col] = cellStatus::Shot;
+                }
+            }
+        }
+    } else {
+        // Вертикальный корабль или корабль длиной 1
+
+        // Находим верхнюю границу корабля
+        while (startY > 0 &&
+               m_cells[startY - 1][x] == cellStatus::Killed) {
+            --startY;
+        }
+
+        // Находим нижнюю границу корабля
+        while (endY < BoardSize - 1 &&
+               m_cells[endY + 1][x] == cellStatus::Killed) {
+            ++endY;
+        }
+
+        // Обводим вертикальный корабль
+        for (int row = startY - 1; row <= endY + 1; ++row) {
+            for (int col = x - 1; col <= x + 1; ++col) {
+                if (row < 0 || col < 0 ||
+                    row >= BoardSize || col >= BoardSize) {
+                    continue;
+                }
+
+                // Shot означает промах
+                if (m_cells[row][col] == cellStatus::Clean) {
+                    m_cells[row][col] = cellStatus::Shot;
+                }
+            }
+        }
+    }
 }

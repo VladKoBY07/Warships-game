@@ -51,6 +51,10 @@ public:
     Q_INVOKABLE void registerEnemyAnswer(int x, int y, int result);
     // обновление обоих полей
     Q_PROPERTY(int boardRevision READ boardRevision NOTIFY boardChanged)
+    // обозначение корабля при убийстве на поле врага
+    void kill_enemys_ship(int x, int y);
+    // обозначение корабля при убийстве на своем поле
+    void kill_my_ship(int x, int y);
 
     int boardRevision() const
     {

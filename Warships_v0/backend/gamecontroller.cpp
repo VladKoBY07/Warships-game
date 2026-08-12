@@ -60,7 +60,7 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
 
     switch (result) {
     case 2: // Miss
-        setTurn(Turn::EnemyTurn);
+        //setTurn(Turn::EnemyTurn);
         break;
 
     case 3: // Hit
