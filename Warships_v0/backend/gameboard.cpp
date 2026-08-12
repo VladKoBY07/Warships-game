@@ -180,15 +180,15 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
     cellStatus newStatus;
 
     switch (result) {
-    case static_cast<int>(answerStatus::Miss):
+    case static_cast<int>(cellStatus::Shot):
         newStatus = cellStatus::Shot;
         break;
 
-    case static_cast<int>(answerStatus::Hit):
+    case static_cast<int>(cellStatus::Damaged):
         newStatus = cellStatus::Damaged;
         break;
 
-    case static_cast<int>(answerStatus::Kill):
+    case static_cast<int>(cellStatus::Killed):
         newStatus = cellStatus::Killed;
         break;
 
@@ -207,7 +207,7 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
 
     notifyBoardChanged();
 
-    qDebug() << "<C++> registerEnemyAnswer called:"
+    qDebug() << "cpp: <GameBoard> registerEnemyAnswer called:"
              << x << y << result;
 
     qDebug() << "enemy cell now ="

@@ -107,7 +107,11 @@ int ai_player::receiveAttack(int x, int y)
 
         return static_cast<int>(GameBoard::cellStatus::Killed);
     }
-    return static_cast<int>(aiBoard.myCellStatusAt(x, y));
+    if(aiBoard.m_cells[x][y] == GameBoard::cellStatus::Clean){
+        aiBoard.m_cells[x][y] = GameBoard::cellStatus::Shot;
+        return static_cast<int>(GameBoard::cellStatus::Shot);
+    }
+    return 0; // ошибка, удар по битой клетке (запрещено раньше)
 }
 
 void ai_player::calculateShoot(int& x, int& y)

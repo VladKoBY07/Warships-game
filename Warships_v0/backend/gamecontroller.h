@@ -9,29 +9,38 @@ class GameController : public QObject
 {
     Q_OBJECT
 public:
-    enum GameMode {
-        PvAI_mode = 0,
-        Local_mode = 1,
+    enum Turn{
+        MyTurn = 0,
+        EnemyTurn = 1,
+        GameOver = 2
     };
-    Q_ENUM(GameMode)
+    Q_ENUM(Turn)
+
+    const int ships_sum = 10; // количество кораблей
+    int killed_ships = 0;
+    int alive_ships = ships_sum;
 
     explicit GameController(GameBoard *gameboard, ai_player *ai, QObject *parent = nullptr);
 
-    Q_PROPERTY(int gamemode READ gamemode WRITE setGamemode NOTIFY gamemodeChanged)
+    Q_PROPERTY(Turn turn READ turn NOTIFY turnChanged)
+    Turn turn() const { return m_turn; }
 
-    int gamemode() const { return m_gamemode; }
-    void setGamemode(int mode);
+    Q_INVOKABLE void playerShootsAt(int x, int y);
 
-
-
+    // запуск игры, режимы
+    void clearController();
+    Q_INVOKABLE void start_PvAI();
+    Q_INVOKABLE void start_Local();
 
 signals:
-    void gamemodeChanged(int mode);
+    void turnChanged();
 
 private:
-    int m_gamemode = 0; // по умолчанию
     GameBoard *m_gameboard;
     ai_player *m_ai;
+
+    void setTurn(Turn new_turn);
+    Turn m_turn = Turn::MyTurn;
 };
 
 #endif // GAMECONTROLLER_H

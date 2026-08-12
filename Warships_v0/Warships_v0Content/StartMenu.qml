@@ -57,22 +57,22 @@ Rectangle {
                 onClicked: {
                     switch(index) {
                         case 0:
-                            console.log("Запуск одиночной игры")
-                            gameController.gamemode = GameController.PvAI_mode
+                            console.log("<Главное меню> Выбрана одиночная игра")
+                            gameController.start_PvAI()
                             stackView.push("PlacementScreen.ui.qml")
                             break;
                         case 1:
-                            console.log("Запуск сетевой игры")
-                            gameController.gamemode = GameController.Local_mode
+                            console.log("<Главное меню> Выбрана сетевая игра")
+                            gameController.start_Local()
                             // TODO: ввод имени -> открытие окна серверов (сделать окно серверов)
                             networkPopup.open()
                             break;
                         case 2:
-                            console.log("Открытие магазина")
+                            console.log("<Главное меню> Выбран магазин")
                             // TODO: переход на страницу магазина
                             break;
                         case 3:
-                            console.log("Выход из игры")
+                            console.log("<Главное меню> Выход из игры")
                             Qt.quit()
                             break;
                     }

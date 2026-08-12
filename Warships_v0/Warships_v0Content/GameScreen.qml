@@ -1,18 +1,12 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
+import Warships 1.0
 
 Rectangle {
     id: gameScreen
     anchors.fill: parent
     color: "#ffffff"
-
-    // строка состояния боя
-    property string turnText: "Ваш ход"
-
-    // TODO: прописать в gameboard.cpp функцию получения состояния поля
-    // противника, через сервер например getEnemyBoardState()
-    // Tip: норм, сделаем после сервера, заготовка в функции отрисовки ниже
 
     Item {
         id: gameContent
@@ -229,22 +223,11 @@ Rectangle {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    console.log("Enemy cell clicked", index)
+                                    console.log("Enemy cell clicked")
                                     var cellX = index % enemyBoard.cols
                                     var cellY = Math.floor(index / enemyBoard.cols)
 
-                                    // проведение удара
-                                    var result = 1;
-                                    gameBoard.registerEnemyAnswer(cellX, cellY, result);
-
-                                    // текст хода
-                                    if (result === 0) {
-                                        gameScreen.turnText = "Ход противника"
-                                    } else if (result === 1) {
-                                        gameScreen.turnText = "Стреляйте снова"
-                                    } else if (result === 2) {
-                                        gameScreen.turnText = "Корабль потоплен!"
-                                    }
+                                    gameController.playerShootsAt(cellX, cellY);
                                 }
                             }
                         }
@@ -314,7 +297,20 @@ Rectangle {
 
         Text {
             anchors.centerIn: parent
-            text: gameScreen.turnText
+
+            text: {
+                if (gameController.turn === GameController.MyTurn)
+                    return "Ваш ход"
+
+                if (gameController.turn === GameController.EnemyTurn)
+                    return "Ход противника"
+
+                if (gameController.turn === GameController.GameOver)
+                    return "Игра завершена"
+
+                return "Неизвестное состояние"
+            }
+
             font.pixelSize: 20
             font.bold: true
             color: "#000000"

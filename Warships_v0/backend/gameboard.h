@@ -51,6 +51,7 @@ public:
     Q_INVOKABLE void registerEnemyAnswer(int x, int y, int result);
     // обновление обоих полей
     Q_PROPERTY(int boardRevision READ boardRevision NOTIFY boardChanged)
+
     int boardRevision() const
     {
         return m_boardRevision;
