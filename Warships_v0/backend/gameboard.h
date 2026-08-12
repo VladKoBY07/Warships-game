@@ -49,16 +49,21 @@ public:
     // Действия:
     // регистрация ответа противника
     Q_INVOKABLE void registerEnemyAnswer(int x, int y, int result);
-    // обновление вражеского поля
-    Q_PROPERTY(int enemyBoardRevision READ enemyBoardRevision NOTIFY enemyBoardChanged)
-    int enemyBoardRevision() const { return m_enemyBoardRevision; }
+    // обновление обоих полей
+    Q_PROPERTY(int boardRevision READ boardRevision NOTIFY boardChanged)
+    int boardRevision() const
+    {
+        return m_boardRevision;
+    }
 signals:
-    void enemyBoardChanged();
+    void boardChanged();
 
 private:
-    cellStatus m_cells[BoardSize][BoardSize]; // my cells
-    cellStatus e_cells[BoardSize][BoardSize]; // enemys cells
-    int m_enemyBoardRevision = 0;
+    void notifyBoardChanged();
+    cellStatus m_cells[BoardSize][BoardSize];
+    cellStatus e_cells[BoardSize][BoardSize];
+
+    int m_boardRevision = 0;
 };
 
 #endif // GAMEBOARD_H

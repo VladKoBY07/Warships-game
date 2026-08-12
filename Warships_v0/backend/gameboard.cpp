@@ -1,8 +1,10 @@
 #include "gameboard.h"
+
 #include <QDebug>
+#include <algorithm>
 
 GameBoard::GameBoard(QObject *parent)
-    : QObject{parent}
+    : QObject(parent)
 {
     clearBoards();
 }
@@ -12,35 +14,39 @@ void GameBoard::clearBoards()
     for (int row = 0; row < BoardSize; ++row) {
         for (int col = 0; col < BoardSize; ++col) {
             m_cells[row][col] = cellStatus::Clean;
-        }
-    }
-
-    for (int row = 0; row < BoardSize; ++row) {
-        for (int col = 0; col < BoardSize; ++col) {
             e_cells[row][col] = cellStatus::Clean;
         }
     }
+
+    notifyBoardChanged();
 }
 
 bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
 {
-    // Проверки границ
+    // Проверка длины корабля
+    if (length <= 0 || length > BoardSize)
+        return false;
+
+    // Проверка начальных координат
     if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
         return false;
 
     if (horizontal) {
+        // Проверка выхода корабля за правую границу
         if (x + length > BoardSize)
             return false;
+
         // Проверка клеток корабля
         for (int i = 0; i < length; ++i) {
             if (m_cells[y][x + i] != cellStatus::Clean)
                 return false;
         }
-        // Проверка зоны вокруг корабля
-        int startX = std::max(0, x - 1);
-        int endX   = std::min(BoardSize - 1, x + length);
-        int startY = std::max(0, y - 1);
-        int endY   = std::min(BoardSize - 1, y + 1);
+
+        // Проверка зоны вокруг горизонтального корабля
+        const int startX = std::max(0, x - 1);
+        const int endX = std::min(BoardSize - 1, x + length);
+        const int startY = std::max(0, y - 1);
+        const int endY = std::min(BoardSize - 1, y + 1);
 
         for (int yy = startY; yy <= endY; ++yy) {
             for (int xx = startX; xx <= endX; ++xx) {
@@ -49,18 +55,21 @@ bool GameBoard::canPlaceShip(int x, int y, int length, bool horizontal)
             }
         }
     } else {
+        // Проверка выхода корабля за нижнюю границу
         if (y + length > BoardSize)
             return false;
+
         // Проверка клеток корабля
         for (int i = 0; i < length; ++i) {
             if (m_cells[y + i][x] != cellStatus::Clean)
                 return false;
         }
-        // Проверка зоны вокруг корабля
-        int startX = std::max(0, x - 1);
-        int endX   = std::min(BoardSize - 1, x + 1);
-        int startY = std::max(0, y - 1);
-        int endY   = std::min(BoardSize - 1, y + length);
+
+        // Проверка зоны вокруг вертикального корабля
+        const int startX = std::max(0, x - 1);
+        const int endX = std::min(BoardSize - 1, x + 1);
+        const int startY = std::max(0, y - 1);
+        const int endY = std::min(BoardSize - 1, y + length);
 
         for (int yy = startY; yy <= endY; ++yy) {
             for (int xx = startX; xx <= endX; ++xx) {
@@ -87,69 +96,120 @@ void GameBoard::placeShip(int x, int y, int length, bool horizontal)
             m_cells[y + i][x] = cellStatus::Ship;
         }
     }
+
+    notifyBoardChanged();
 }
 
 void GameBoard::removeShip(int x, int y, int length, bool horizontal)
 {
+    bool changed = false;
+
     if (horizontal) {
         for (int i = 0; i < length; ++i) {
-            int cx = x + i;
-            if (cx >= 0 && cx < BoardSize && y >= 0 && y < BoardSize)
+            const int cx = x + i;
+
+            if (cx >= 0 && cx < BoardSize &&
+                y >= 0 && y < BoardSize &&
+                m_cells[y][cx] != cellStatus::Clean) {
+
                 m_cells[y][cx] = cellStatus::Clean;
+                changed = true;
+            }
         }
     } else {
         for (int i = 0; i < length; ++i) {
-            int cy = y + i;
-            if (x >= 0 && x < BoardSize && cy >= 0 && cy < BoardSize)
+            const int cy = y + i;
+
+            if (x >= 0 && x < BoardSize &&
+                cy >= 0 && cy < BoardSize &&
+                m_cells[cy][x] != cellStatus::Clean) {
+
                 m_cells[cy][x] = cellStatus::Clean;
+                changed = true;
+            }
         }
     }
+
+    if (changed)
+        notifyBoardChanged();
 }
 
-bool GameBoard::cellOccupied(int x, int y) const {
-    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+bool GameBoard::cellOccupied(int x, int y) const
+{
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
         return false;
+    }
+
     return m_cells[y][x] != cellStatus::Clean;
 }
 
-// статус клеток
 int GameBoard::myCellStatusAt(int x, int y) const
 {
-    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
         return static_cast<int>(cellStatus::Clean);
+    }
+
     return static_cast<int>(m_cells[y][x]);
 }
+
 int GameBoard::enemyCellStatusAt(int x, int y) const
 {
-    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
         return static_cast<int>(cellStatus::Clean);
+    }
+
     return static_cast<int>(e_cells[y][x]);
 }
 
-// регистрация атаки на вражеское поле
+void GameBoard::notifyBoardChanged()
+{
+    ++m_boardRevision;
+    emit boardChanged();
+}
+
 void GameBoard::registerEnemyAnswer(int x, int y, int result)
 {
-    if (x < 0 || y < 0 || x >= BoardSize || y >= BoardSize)
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
         return;
+    }
 
-    cellStatus &cell = e_cells[y][x];
+    cellStatus newStatus;
 
     switch (result) {
     case static_cast<int>(answerStatus::Miss):
-        cell = cellStatus::Shot;
+        newStatus = cellStatus::Shot;
         break;
+
     case static_cast<int>(answerStatus::Hit):
-        cell = cellStatus::Damaged;
+        newStatus = cellStatus::Damaged;
         break;
+
     case static_cast<int>(answerStatus::Kill):
-        cell = cellStatus::Killed;
-    default:
+        newStatus = cellStatus::Killed;
         break;
+
+    default:
+        qWarning() << "Unknown enemy answer:" << result;
+        return;
     }
 
-    ++m_enemyBoardRevision;
-    emit enemyBoardChanged();
+    cellStatus &cell = e_cells[y][x];
 
-    qDebug() << "<C++> registerEnemyAnswer called" << x << y << result;
-    qDebug() << "enemy cell now =" << static_cast<int>(cell);
+    // Если статус уже такой же, поле фактически не изменилось
+    if (cell == newStatus)
+        return;
+
+    cell = newStatus;
+
+    notifyBoardChanged();
+
+    qDebug() << "<C++> registerEnemyAnswer called:"
+             << x << y << result;
+
+    qDebug() << "enemy cell now ="
+             << static_cast<int>(cell);
 }

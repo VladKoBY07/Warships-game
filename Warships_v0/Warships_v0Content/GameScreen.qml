@@ -127,17 +127,20 @@ Rectangle {
 
                             // отрисовка статусов клеток
                             color: {
+                                var revision = gameBoard.boardRevision
+
                                 var col = index % myBoard.cols
                                 var row = Math.floor(index / myBoard.cols)
-                                var st = gameBoard.myCellStatusAt(col, row);
+                                var st = gameBoard.myCellStatusAt(col, row)
 
                                 // 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed
-                                if (st === 0)   return "transparent"; // Clean
-                                if (st === 1)   return "#90CAF9";     // Ship (мои корабли)
-                                if (st === 2)   return "#B0BEC5";     // Shot (промах противника)
-                                if (st === 3)   return "#FF7043";     // Damaged (подбит)
-                                if (st === 4)   return "#D32F2F";     // Killed (убит)
-                                return "transparent";
+                                if (st === 0) return "transparent"
+                                if (st === 1) return "#90CAF9"
+                                if (st === 2) return "#B0BEC5"
+                                if (st === 3) return "#FF7043"
+                                if (st === 4) return "#D32F2F"
+
+                                return "transparent"
                             }
 
                             border.color: "transparent";
@@ -207,19 +210,19 @@ Rectangle {
 
                             // отрисовка состояния вражеских клеток
                             color: {
-                                gameBoard.enemyBoardRevision; // зависимость от enemyBoardRevision
-                                var cx = index % enemyBoard.cols
-                                var cy = Math.floor(index / enemyBoard.cols)
-                                var st = gameBoard.enemyCellStatusAt(cx, cy);
+                                var revision = gameBoard.boardRevision
 
-                                //console.log("enemyCell", cx, cy, "status", st);
+                                var col = index % enemyBoard.cols
+                                var row = Math.floor(index / enemyBoard.cols)
+                                var st = gameBoard.enemyCellStatusAt(col, row)
 
                                 // 0 Clean, 2 Shot, 3 Damaged, 4 Killed
-                                if (st === 0)   return "transparent"; // ещё не стреляли
-                                if (st === 2)   return "#B0BEC5";     // промах
-                                if (st === 3)   return "#FF7043";     // попадание
-                                if (st === 4)   return "#D32F2F";     // убит
-                                return "transparent";
+                                if (st === 0) return "transparent"
+                                if (st === 2) return "#B0BEC5"
+                                if (st === 3) return "#FF7043"
+                                if (st === 4) return "#D32F2F"
+
+                                return "transparent"
                             }
                             border.color: "transparent"
 
