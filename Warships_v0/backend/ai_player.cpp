@@ -36,84 +36,6 @@ void ai_player::generateRandomPlacement()
     }
 }
 
-int ai_player::receiveAttack(int x, int y)
-{// 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed
-    if (aiBoard.m_cells[x][y] == GameBoard::cellStatus::Ship)
-    {
-        int rx = x;
-        int ry = y;
-        //left
-        while (rx > 0)
-        {
-            rx -= 1;
-            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Clean ||
-                aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Shot)
-                break;
-
-            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Ship)
-            {
-                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
-                return static_cast<int>(GameBoard::cellStatus::Damaged);
-            }
-        }
-        rx = x;
-
-        //right
-        while (rx < 9)
-        {
-            rx += 1;
-            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Clean ||
-                aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Shot)
-                break;
-
-            if (aiBoard.m_cells[rx][y] == GameBoard::cellStatus::Ship)
-            {
-                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
-                return static_cast<int>(GameBoard::cellStatus::Damaged);
-            }
-        }
-
-        //up
-        while (ry > 0)
-        {
-            ry -= 1;
-            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Clean ||
-                aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Shot)
-                break;
-
-            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Ship)
-            {
-                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
-                return static_cast<int>(GameBoard::cellStatus::Damaged);
-            }
-        }
-
-        ry = y;
-
-        //down
-        while (ry < 9)
-        {
-            ry += 1;
-            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Clean ||
-                aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Shot)
-                break;
-
-            if (aiBoard.m_cells[x][ry] == GameBoard::cellStatus::Ship)
-            {
-                aiBoard.m_cells[x][y] = GameBoard::cellStatus::Damaged;
-                return static_cast<int>(GameBoard::cellStatus::Damaged);
-            }
-        }
-
-        return static_cast<int>(GameBoard::cellStatus::Killed);
-    }
-    if(aiBoard.m_cells[x][y] == GameBoard::cellStatus::Clean){
-        aiBoard.m_cells[x][y] = GameBoard::cellStatus::Shot;
-        return static_cast<int>(GameBoard::cellStatus::Shot);
-    }
-    return 0; // ошибка, удар по битой клетке (запрещено раньше)
-}
-
 void ai_player::calculateShoot(int& x, int& y)
 {
     std::mt19937 rng(static_cast<unsigned int>(std::time(nullptr)));
@@ -163,41 +85,5 @@ void ai_player::calculateShoot(int& x, int& y)
         y = target.second;
     } else {
         x = 0; y = 0; // На всякий случай, если поле полностью заполнено
-    }
-}
-
-void ai_player::performAttack()
-{
-    int targetX, targetY;
-    calculateShoot(targetX, targetY);
-
-    // Пока Miss = 0, чтобы код компилировался.
-    int gameResponse = 0;
-
-    aiBoard.registerEnemyAnswer(targetX, targetY, gameResponse);
-
-    // Если мы убили корабль человека, автоматически обведем его Shot
-    if (aiBoard.e_cells[targetY][targetX] == GameBoard::cellStatus::Killed) {
-        for (int row = 0; row < GameBoard::BoardSize; ++row) {
-            for (int col = 0; col < GameBoard::BoardSize; ++col) {
-                if (aiBoard.e_cells[row][col] == GameBoard::cellStatus::Killed) {
-
-                    // Ставим Shot в 8 клетках вокруг каждой уничтоженной палубы
-                    for (int dy = -1; dy <= 1; ++dy) {
-                        for (int dx = -1; dx <= 1; ++dx) {
-                            int nx = col + dx;
-                            int ny = row + dy;
-
-                            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
-                                if (aiBoard.e_cells[ny][nx] == GameBoard::cellStatus::Clean) {
-                                    aiBoard.registerEnemyAnswer(nx, ny, 0);
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
     }
 }

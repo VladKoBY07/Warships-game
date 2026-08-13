@@ -212,12 +212,120 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
     }
 
     notifyBoardChanged();
-
     qDebug() << "cpp: <GameBoard> registerEnemyAnswer called:"
-             << x << y << result;
+             << x << y << result << "enemy cell now =" << static_cast<int>(cell);
+}
 
-    qDebug() << "enemy cell now ="
-             << static_cast<int>(cell);
+int GameBoard::receiveAttack(int x, int y)
+{
+    if (x < 0 || y < 0 ||
+        x >= BoardSize || y >= BoardSize) {
+        return 0;
+    }
+
+    cellStatus &cell = m_cells[y][x];
+
+    // Промах
+    if (cell == cellStatus::Clean) {
+        cell = cellStatus::Shot;
+        notifyBoardChanged();
+
+        qDebug() << "cpp: <GameBoard> receiveAttack:"
+                 << x << y << "Miss";
+
+        return static_cast<int>(cellStatus::Shot);
+    }
+
+    // Повторный удар по уже обработанной клетке
+    if (cell == cellStatus::Shot ||
+        cell == cellStatus::Damaged ||
+        cell == cellStatus::Killed) {
+        return 0;
+    }
+
+    // Если здесь не Ship, считаем удар некорректным
+    if (cell != cellStatus::Ship)
+        return 0;
+
+    // Проверяем, есть ли ещё неповреждённая часть корабля слева
+    bool hasShipPart = false;
+
+    for (int xx = x - 1; xx >= 0; --xx) {
+        if (m_cells[y][xx] == cellStatus::Clean ||
+            m_cells[y][xx] == cellStatus::Shot) {
+            break;
+        }
+
+        if (m_cells[y][xx] == cellStatus::Ship) {
+            hasShipPart = true;
+            break;
+        }
+    }
+
+    // Справа
+    if (!hasShipPart) {
+        for (int xx = x + 1; xx < BoardSize; ++xx) {
+            if (m_cells[y][xx] == cellStatus::Clean ||
+                m_cells[y][xx] == cellStatus::Shot) {
+                break;
+            }
+
+            if (m_cells[y][xx] == cellStatus::Ship) {
+                hasShipPart = true;
+                break;
+            }
+        }
+    }
+
+    // Сверху
+    if (!hasShipPart) {
+        for (int yy = y - 1; yy >= 0; --yy) {
+            if (m_cells[yy][x] == cellStatus::Clean ||
+                m_cells[yy][x] == cellStatus::Shot) {
+                break;
+            }
+
+            if (m_cells[yy][x] == cellStatus::Ship) {
+                hasShipPart = true;
+                break;
+            }
+        }
+    }
+
+    // Снизу
+    if (!hasShipPart) {
+        for (int yy = y + 1; yy < BoardSize; ++yy) {
+            if (m_cells[yy][x] == cellStatus::Clean ||
+                m_cells[yy][x] == cellStatus::Shot) {
+                break;
+            }
+
+            if (m_cells[yy][x] == cellStatus::Ship) {
+                hasShipPart = true;
+                break;
+            }
+        }
+    }
+
+    // В корабле ещё остались неповреждённые клетки
+    if (hasShipPart) {
+        cell = cellStatus::Damaged;
+        notifyBoardChanged();
+
+        qDebug() << "cpp: <GameBoard> receiveAttack:"
+                 << x << y << "Hit";
+
+        return static_cast<int>(cellStatus::Damaged);
+    }
+
+    // Последняя клетка корабля
+    kill_my_ship(x, y);
+    notifyBoardChanged();
+
+    qDebug() << "cpp: <GameBoard> receiveAttack:"
+             << x << y << "Kill";
+
+    return static_cast<int>(cellStatus::Killed);
 }
 
 void GameBoard::kill_enemys_ship(int x, int y)

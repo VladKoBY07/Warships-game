@@ -305,8 +305,11 @@ Rectangle {
                 if (gameController.turn === GameController.EnemyTurn)
                     return "Ход противника"
 
-                if (gameController.turn === GameController.GameOver)
-                    return "Игра завершена"
+                if (gameController.turn === GameController.GameOver_PlayerWon)
+                    return "Победа!"
+
+                if (gameController.turn === GameController.GameOver_PlayerLost)
+                    return "Поражение"
 
                 return "Неизвестное состояние"
             }

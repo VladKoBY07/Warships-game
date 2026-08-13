@@ -49,6 +49,8 @@ public:
     // Действия:
     // регистрация ответа противника
     Q_INVOKABLE void registerEnemyAnswer(int x, int y, int result);
+    // принятие атаки на поле и возвращение результата
+    Q_INVOKABLE int receiveAttack(int x, int y);
     // обновление обоих полей
     Q_PROPERTY(int boardRevision READ boardRevision NOTIFY boardChanged)
     // обозначение корабля при убийстве на поле врага

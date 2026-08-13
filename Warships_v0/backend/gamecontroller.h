@@ -12,9 +12,16 @@ public:
     enum Turn{
         MyTurn = 0,
         EnemyTurn = 1,
-        GameOver = 2
+        GameOver_PlayerWon = 2,
+        GameOver_PlayerLost = 3
     };
     Q_ENUM(Turn)
+
+    enum Gamemodes{
+        PvAI = 0,
+        Local= 1
+    };
+    Q_ENUM(Gamemodes)
 
     const int ships_sum = 10; // количество кораблей
     int killed_ships = 0;
@@ -41,6 +48,8 @@ private:
 
     void setTurn(Turn new_turn);
     Turn m_turn = Turn::MyTurn;
+    void setGamemode(Gamemodes new_gamemode);
+    Gamemodes gamemode = Gamemodes::PvAI;
 };
 
 #endif // GAMECONTROLLER_H
