@@ -12,7 +12,7 @@ qt6_add_qml_module(Warships_v0Content
         "App.qml"
         "GameScreen.qml"
         "NetworkPopup.qml"
-        "PlacementScreen.ui.qml"
+        "PlacementScreen.qml"
         "ShipItem.qml"
         "StartMenu.qml"
 )

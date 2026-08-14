@@ -28,7 +28,12 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "Игрок 1"
+                text: {
+                    if (gameController.gamemode === GameController.Local)
+                        return gameController.playerName
+
+                    return "Вы"
+                }
                 font.pixelSize: 28
                 font.bold: true
                 color: "#000000"
@@ -50,7 +55,12 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "Игрок 2"
+                text: {
+                    if (gameController.gamemode === GameController.Local)
+                        return "Игрок 2" // имя из сервера
+
+                    return "Компьютер"
+                }
                 font.pixelSize: 28
                 font.bold: true
                 color: "#000000"
@@ -352,5 +362,8 @@ Rectangle {
         ScriptAction { script: introBox.anchors.topMargin = 40 }
 
         NumberAnimation { target: turnPlate; property: "opacity"; from: 0.0; to: 1.0; duration: 300 }
+
+        PauseAnimation { duration: 3000 }
+        NumberAnimation { target: introBox; property: "opacity"; from: 1.0; to: 0.0; duration: 500 }
     }
 }

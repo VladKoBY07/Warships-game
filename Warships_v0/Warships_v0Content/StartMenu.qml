@@ -59,7 +59,7 @@ Rectangle {
                         case 0:
                             console.log("<Главное меню> Выбрана одиночная игра")
                             gameController.start_PvAI()
-                            stackView.push("PlacementScreen.ui.qml")
+                            stackView.push("PlacementScreen.qml")
                             break;
                         case 1:
                             console.log("<Главное меню> Выбрана сетевая игра")

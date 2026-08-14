@@ -18,10 +18,24 @@ void GameController::setTurn(Turn turn)
     emit turnChanged();
 }
 
-void GameController::setGamemode(Gamemodes new_gamemode){
-    if (gamemode == new_gamemode)
+void GameController::setGamemode(Gamemodes new_gamemode)
+{
+    if (m_gamemode == new_gamemode)
         return;
-    gamemode = new_gamemode;
+
+    m_gamemode = new_gamemode;
+    emit gamemodeChanged();
+}
+
+void GameController::setPlayerName(const QString &name)
+{
+    const QString trimmedName = name.trimmed();
+
+    if (m_playerName == trimmedName)
+        return;
+
+    m_playerName = trimmedName;
+    emit playerNameChanged();
 }
 
 void GameController::clearController(){
@@ -60,7 +74,7 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
     if (m_gameboard->enemyCellStatusAt(x, y) != static_cast<int>(GameBoard::cellStatus::Clean))
         return;
 
-    switch (static_cast<int>(gamemode)) {
+    switch (static_cast<int>(m_gamemode)) {
     case static_cast<int>(GameController::Gamemodes::PvAI): // если против ии
     {
         // 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed

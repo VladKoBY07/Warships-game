@@ -196,31 +196,6 @@ Item {
             }
         }
 
-
-        Rectangle {
-            id: player1Box
-            width: 240
-            height: 80
-            radius: 10
-            color: "#F5F5F5"
-            border.color: "#BDBDBD"
-            border.width: 1
-            anchors.left: parent.left
-            anchors.leftMargin: 30
-            anchors.top: parent.top
-            anchors.topMargin: 30
-
-            Text {
-                anchors.centerIn: parent
-
-                //Todo: изначально передавать вместо строчки "Игрок 1" данные имени с сервера
-
-                text: "Игрок 1"
-                font.pixelSize: 28
-                font.bold: true
-                color: "#000000"
-            }
-        }
     }
 
     Popup {
