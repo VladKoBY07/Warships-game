@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariantMap>
 #include "backend/gameboard.h"
 #include "backend/ai_player.h"
+
+class NetworkManager;
 
 class GameController : public QObject
 {
@@ -28,7 +31,7 @@ public:
     int killed_ships = 0;
     int alive_ships = ships_sum;
 
-    explicit GameController(GameBoard *gameboard, ai_player *ai, QObject *parent = nullptr);
+    explicit GameController(GameBoard *gameboard, ai_player *ai, NetworkManager *networkManager, QObject *parent = nullptr);
 
     Q_PROPERTY(Turn turn READ turn NOTIFY turnChanged)
     Turn turn() const { return m_turn; }
@@ -51,16 +54,28 @@ signals:
     void gamemodeChanged();
     void playerNameChanged();
 
+    void remoteShotReceived(int x, int y);
+
+private slots:
+    void onGameActionReceived(const QString &action, const QVariantMap &data);
+
 private:
-    GameBoard *m_gameboard;
-    ai_player *m_ai;
+    void setTurn(Turn new_turn);
+    void setGamemode(Gamemodes new_gamemode);
+    void setPlayerName(const QString &name);
+
+    void sendNetworkShot(int x, int y);
+    void handleRemoteShot(int x, int y);
+
+private:
+    GameBoard *m_gameboard = nullptr;
+    ai_player *m_ai = nullptr;
+    NetworkManager *m_networkManager = nullptr;
+
     QString m_playerName;
 
-    void setTurn(Turn new_turn);
     Turn m_turn = Turn::MyTurn;
-    void setGamemode(Gamemodes new_gamemode);
     Gamemodes m_gamemode = Gamemodes::PvAI;
-    void setPlayerName(const QString &name);
 };
 
 #endif // GAMECONTROLLER_H

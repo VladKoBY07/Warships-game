@@ -23,7 +23,11 @@ qt_standard_project_setup()
 qt_add_executable(${CMAKE_PROJECT_NAME}
     backend/gameboard.h backend/gameboard.cpp
     backend/ai_player.h backend/ai_player.cpp
-    backend/gamecontroller.h backend/gamecontroller.cpp)
+    backend/gamecontroller.h backend/gamecontroller.cpp
+    network/networkprotocol.h
+    network/networkmanager.h network/networkmanager.cpp
+    network/playersmodel.h network/playersmodel.cpp
+)
 qt_add_resources(${CMAKE_PROJECT_NAME} "configuration"
     PREFIX "/"
     FILES

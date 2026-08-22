@@ -15,6 +15,7 @@ qt6_add_qml_module(Warships_v0Content
         "PlacementScreen.qml"
         "ShipItem.qml"
         "StartMenu.qml"
+        "ConnectionRequestPopup.qml"
 )
 
 

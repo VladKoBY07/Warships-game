@@ -7,9 +7,11 @@
         <file>Warships_v0/EventListSimulator.qml</file>
         <file>Warships_v0/qmldir</file>
         <file>Warships_v0Content/App.qml</file>
-        <file>Warships_v0Content/GameScreen.ui.qml</file>
-        <file>Warships_v0Content/PlacementScreen.ui.qml</file>
+        <file>Warships_v0Content/ConnectionRequestPopup.qml</file>
+        <file>Warships_v0Content/GameScreen.qml</file>
+        <file>Warships_v0Content/NetworkPopup.qml</file>
+        <file>Warships_v0Content/PlacementScreen.qml</file>
         <file>Warships_v0Content/ShipItem.qml</file>
-        <file>Warships_v0Content/StartMenu.ui.qml</file>
+        <file>Warships_v0Content/StartMenu.qml</file>
     </qresource>
 </RCC>

@@ -1,13 +1,23 @@
 #include "gamecontroller.h"
+#include "backend/gameboard.h"
+#include "backend/ai_player.h"
+#include "network/networkmanager.h"
 #include <QDebug>
 
 GameController::GameController(GameBoard *gameboard,
                                ai_player *ai,
+                               NetworkManager *networkManager,
                                QObject *parent)
     : QObject(parent)
     , m_gameboard(gameboard)
     , m_ai(ai)
-{}
+    , m_networkManager(networkManager)
+{
+    if(!m_networkManager)
+        return;
+
+    connect(m_networkManager, &NetworkManager::gameActionReceived, this, &GameController::onGameActionReceived);
+}
 
 void GameController::setTurn(Turn turn)
 {
@@ -88,7 +98,7 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
             while(attack_result != shot_status) // пока ии не промажет или победит стреляет
             {
                 setTurn(Turn::EnemyTurn);
-                int attackX, attackY;
+                int attackX = 0, attackY = 0;
                 m_ai->calculateShoot(attackX, attackY);
                 attack_result = m_gameboard->receiveAttack(attackX, attackY);
                 m_ai->aiBoard.registerEnemyAnswer(attackX, attackY, attack_result);
@@ -124,7 +134,111 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
     }
     case static_cast<int>(GameController::Gamemodes::Local): // если по сети
     {
+        sendNetworkShot(x, y);
         break;
     }
 }
+}
+
+void GameController::sendNetworkShot(int x, int y){
+    if(!m_networkManager)
+        return;
+
+    if(!m_networkManager->isConnected()){
+        qDebug() << "cpp: <Controller> Нет сетевого подключения";
+        return;
+    }
+
+    QVariantMap data;
+    data["x"] = x;
+    data["y"] = y;
+
+    m_networkManager->sendGameAction(QStringLiteral("SHOT"), data);
+
+    setTurn(Turn::EnemyTurn);
+    qDebug() << "cpp: <Controller> Отправлен сетевой выстрел: " << x << y;
+}
+
+void GameController::onGameActionReceived(const QString &action, const QVariantMap &data)
+{
+    if (action == "SHOT") {
+        const int x =
+            data.value("x").toInt();
+
+        const int y =
+            data.value("y").toInt();
+
+        handleRemoteShot(x, y);
+
+        return;
+    }
+
+    if (action == "SHOT_RESULT") {
+        const int x =
+            data.value("x").toInt();
+
+        const int y =
+            data.value("y").toInt();
+
+        const int result =
+            data.value("result").toInt();
+
+        if (m_gameboard) {
+            m_gameboard->registerEnemyAnswer(x, y, result);
+        }
+
+        if (result == static_cast<int>(GameBoard::cellStatus::Killed)) {
+            killed_ships++;
+
+            if (killed_ships >= ships_sum) {
+                setTurn(Turn::GameOver_PlayerWon);
+                return;
+            }
+        }
+
+        if (result == static_cast<int>(GameBoard::cellStatus::Shot)) {
+            setTurn(Turn::EnemyTurn);
+        } else {
+            setTurn(Turn::MyTurn);
+        }
+
+        return;
+    }
+}
+
+void GameController::handleRemoteShot(int x, int y)
+{
+    if (!m_gameboard)
+        return;
+
+    qDebug() << "cpp: <Controller> Получен выстрел соперника:" << x << y;
+
+    const int result = m_gameboard->receiveAttack(x, y);
+
+    QVariantMap response;
+
+    response["x"] = x;
+    response["y"] = y;
+    response["result"] = result;
+
+    if (m_networkManager && m_networkManager->isConnected()) {
+        m_networkManager->sendGameAction(QStringLiteral("SHOT_RESULT"), response);
+    }
+
+    emit remoteShotReceived(x, y);
+
+    if (result == static_cast<int>(GameBoard::cellStatus::Killed)) {
+        alive_ships -= 1;
+
+        if (alive_ships <= 0) {
+            setTurn(Turn::GameOver_PlayerLost);
+            return;
+        }
+    }
+
+    if (result == static_cast<int>(GameBoard::cellStatus::Shot)){
+        setTurn(Turn::MyTurn);
+    } else {
+        setTurn(Turn::EnemyTurn);
+    }
 }

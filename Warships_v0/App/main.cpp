@@ -7,6 +7,7 @@
 #include "backend/gameboard.h"
 #include "backend/ai_player.h"
 #include "backend/gamecontroller.h"
+#include "network/networkmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,11 +22,13 @@ int main(int argc, char *argv[])
         "GameController is exposed as context property"
         );
 
+    NetworkManager networkManager;
     GameBoard gameBoard;
     ai_player ai;
-    GameController gameController(&gameBoard, &ai);
+    GameController gameController(&gameBoard, &ai, &networkManager);
     engine.rootContext()->setContextProperty("gameBoard", &gameBoard);
     engine.rootContext()->setContextProperty("gameController", &gameController);
+    engine.rootContext()->setContextProperty("networkManager", &networkManager);
 
     const QUrl url(mainQmlFile);
     QObject::connect(
