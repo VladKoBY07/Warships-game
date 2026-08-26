@@ -517,6 +517,15 @@ void NetworkManager::processJson(
     }
 
     if (type
+        == "OPPONENT_DISCONNECTED") {
+        emit opponentDisconnected();
+
+        closeCurrentSocket(false);
+
+        return;
+    }
+
+    if (type
         == NetworkProtocol::GameAction) {
 
         const QString action =
@@ -674,35 +683,60 @@ void NetworkManager::sendJson(
 
 void NetworkManager::disconnectFromPlayer()
 {
-    m_announceTimer.stop();
-    m_playersCleanupTimer.stop();
+    qDebug()
+    << "cpp: <NetworkManager> "
+    << "Игрок закрывает соединение";
 
     if (m_tcpSocket) {
+        QJsonObject object;
+
+        object["type"] =
+            "OPPONENT_DISCONNECTED";
+
+        object["protocol"] =
+            NetworkProtocol::Version;
+
+        object["game"] =
+            NetworkProtocol::GameName;
+
+        sendJson(object);
+
         m_tcpSocket->disconnectFromHost();
     }
 
+    m_announceTimer.stop();
     setConnected(false);
 }
 
 
-void NetworkManager::closeCurrentSocket()
+void NetworkManager::closeCurrentSocket(bool notifyOpponent)
 {
-    if (!m_tcpSocket) {
-        setConnected(false);
-        return;
+    if (notifyOpponent && m_tcpSocket) {
+        QJsonObject object;
+
+        object["type"] =
+            "OPPONENT_DISCONNECTED";
+
+        object["protocol"] =
+            NetworkProtocol::Version;
+
+        object["game"] =
+            NetworkProtocol::GameName;
+
+        sendJson(object);
     }
 
-    QTcpSocket *socket =
-        m_tcpSocket.data();
+    if (m_tcpSocket) {
+        QTcpSocket *socket =
+            m_tcpSocket.data();
 
-    m_tcpSocket.clear();
+        m_tcpSocket.clear();
 
-    if (socket->state()
-        != QAbstractSocket::UnconnectedState) {
         socket->abort();
+        socket->deleteLater();
     }
 
-    socket->deleteLater();
+    m_pendingRemoteName.clear();
 
     setConnected(false);
 }
@@ -710,21 +744,27 @@ void NetworkManager::closeCurrentSocket()
 
 void NetworkManager::onSocketDisconnected()
 {
-    if (!m_tcpSocket) {
-        setConnected(false);
-        return;
+    qDebug()
+    << "cpp: <NetworkManager> "
+    << "TCP-соединение закрыто";
+
+    if (m_connected) {
+        emit opponentDisconnected();
     }
 
-    QTcpSocket *socket =
-        m_tcpSocket.data();
+    m_pendingRemoteName.clear();
 
-    m_tcpSocket.clear();
+    if (m_tcpSocket) {
+        QTcpSocket *socket =
+            m_tcpSocket.data();
 
-    socket->deleteLater();
+        m_tcpSocket.clear();
+
+        socket->deleteLater();
+    }
 
     setConnected(false);
 }
-
 
 void NetworkManager::onSocketError(
     QAbstractSocket::SocketError error

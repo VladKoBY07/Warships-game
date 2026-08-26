@@ -9,11 +9,29 @@ Window {
 
     visible: true
 
+    property alias networkPopup: networkPopup
+
     StackView {
         id: stackView
         anchors.fill: parent
         initialItem: StartMenu {}
     }
+
+    NetworkPopup {
+        id: networkPopup
+    }
+
+    Connections {
+        target: networkManager
+
+        function onOpponentDisconnected() {
+            console.log("<App> Соперник отключился")
+
+            while (stackView.depth > 1) {
+                stackView.pop()
+            }
+
+            networkPopup.open()
+        }
+    }
 }
-
-

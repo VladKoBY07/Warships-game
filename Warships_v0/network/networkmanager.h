@@ -83,6 +83,8 @@ signals:
         const QString &message
         );
 
+    void opponentDisconnected();
+
 private slots:
     void readPendingDatagrams();
     void sendAnnouncement();
@@ -107,7 +109,7 @@ private:
         );
 
     void setConnected(bool value);
-    void closeCurrentSocket();
+    void closeCurrentSocket(bool notifyOpponent = false);;
 
 private:
     QString m_playerName;

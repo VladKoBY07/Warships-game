@@ -56,8 +56,11 @@ signals:
 
     void remoteShotReceived(int x, int y);
 
+    void opponentDisconnected();
+
 private slots:
     void onGameActionReceived(const QString &action, const QVariantMap &data);
+    void onOpponentDisconnected();
 
 private:
     void setTurn(Turn new_turn);

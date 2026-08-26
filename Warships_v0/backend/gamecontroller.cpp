@@ -17,6 +17,7 @@ GameController::GameController(GameBoard *gameboard,
         return;
 
     connect(m_networkManager, &NetworkManager::gameActionReceived, this, &GameController::onGameActionReceived);
+    connect(m_networkManager, &NetworkManager::opponentDisconnected, this, &GameController::onOpponentDisconnected);
 }
 
 void GameController::setTurn(Turn turn)
@@ -204,6 +205,19 @@ void GameController::onGameActionReceived(const QString &action, const QVariantM
 
         return;
     }
+}
+
+void GameController::onOpponentDisconnected()
+{
+    qDebug()
+    << "cpp: <Controller> "
+    << "Соперник отключился";
+
+    clearController();
+
+    setTurn(Turn::MyTurn);
+
+    emit opponentDisconnected();
 }
 
 void GameController::handleRemoteShot(int x, int y)
