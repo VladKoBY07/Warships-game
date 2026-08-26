@@ -41,33 +41,92 @@ void ai_player::calculateShoot(int& x, int& y)
     std::mt19937 rng(static_cast<unsigned int>(std::time(nullptr)));
 
     //Ищем, есть ли на поле Damaged
+    std::vector<std::pair<int, int>> damaged;
     for (int row = 0; row < GameBoard::BoardSize; ++row) {
         for (int col = 0; col < GameBoard::BoardSize; ++col) {
             if (aiBoard.e_cells[row][col] == GameBoard::cellStatus::Damaged) {
+                damaged.push_back({col, row}); // {x, y}
+            }
+        }
+    }
 
+    if (!damaged.empty()) {
+        std::vector<std::pair<int, int>> targets;
+
+        if (damaged.size() == 1) {
+            int cx = damaged[0].first;
+            int cy = damaged[0].second;
                 // Раненная клетка найдена. Проверяем 4 направления вокруг неё (крестом)
                 int dx[] = {0, 0, -1, 1};
                 int dy[] = {-1, 1, 0, 0};
 
                 for (int i = 0; i < 4; ++i) {
-                    int nx = col + dx[i];
-                    int ny = row + dy[i];
+                    int nx = cx + dx[i];
+                    int ny = cy + dy[i];
 
                     // Если точка внутри поля и Clean — бьем
                     if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
                         if (aiBoard.e_cells[ny][nx] == GameBoard::cellStatus::Clean) {
-                            x = nx;
-                            y = ny;
-                            return; // Нашли цель для добивания — выходим
+                            targets.push_back({nx, ny});
                         }
                     }
                 }
+        }
+
+
+        else {
+            bool isHorizontal = (damaged[0].second == damaged[1].second);
+
+            if (isHorizontal) {
+                int minX = damaged[0].first;
+                int maxX = damaged[0].first;
+                int yLine = damaged[0].second;
+
+                for (const auto& p : damaged) {
+                    minX = std::min(minX, p.first);
+                    maxX = std::max(maxX, p.first);
+                }
+
+                // Проверяем возможность выстрела слева от линии
+                if (minX > 0 && aiBoard.e_cells[yLine][minX - 1] == GameBoard::cellStatus::Clean) {
+                    targets.push_back({minX - 1, yLine});
+                }
+                // Проверяем возможность выстрела справа от линии
+                if (maxX < 9 && aiBoard.e_cells[yLine][maxX + 1] == GameBoard::cellStatus::Clean) {
+                    targets.push_back({maxX + 1, yLine});
+                }
+            } else {
+                int minY = damaged[0].second;
+                int maxY = damaged[0].second;
+                int xLine = damaged[0].first;
+
+                for (const auto& p : damaged) {
+                    minY = std::min(minY, p.second);
+                    maxY = std::max(maxY, p.second);
+                }
+
+                // Проверяем возможность выстрела сверху от линии
+                if (minY > 0 && aiBoard.e_cells[minY - 1][xLine] == GameBoard::cellStatus::Clean) {
+                    targets.push_back({xLine, minY - 1});
+                }
+                // Проверяем возможность выстрела снизу от линии
+                if (maxY < 9 && aiBoard.e_cells[maxY + 1][xLine] == GameBoard::cellStatus::Clean) {
+                    targets.push_back({xLine, maxY + 1});
+                }
             }
+        }
+
+        // Если нашли потенциальные цели для продолжения линии — стреляем по одной из них
+        if (!targets.empty()) {
+            std::uniform_int_distribution<int> dist(0, targets.size() - 1);
+            auto target = targets[dist(rng)];
+            x = target.first;
+            y = target.second;
+            return;
         }
     }
 
-    //Если Damaged нет, ищем случайную пустую клетку
-    // Чтобы процессор не гадал в цикле while, соберем все доступные чистые клетки
+    // Если раненых нет (или край линии упирается в края/промахи), ищем случайную пустую клетку
     std::vector<std::pair<int, int>> cleanCells;
     for (int row = 0; row < GameBoard::BoardSize; ++row) {
         for (int col = 0; col < GameBoard::BoardSize; ++col) {
@@ -77,13 +136,12 @@ void ai_player::calculateShoot(int& x, int& y)
         }
     }
 
-    // Берем случайную из гарантированно пустых
     if (!cleanCells.empty()) {
         std::uniform_int_distribution<int> dist(0, cleanCells.size() - 1);
         auto target = cleanCells[dist(rng)];
         x = target.first;
         y = target.second;
     } else {
-        x = 0; y = 0; // На всякий случай, если поле полностью заполнено
+        x = 0; y = 0;
     }
 }
