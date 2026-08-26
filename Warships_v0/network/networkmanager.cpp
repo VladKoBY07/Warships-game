@@ -67,6 +67,19 @@ void NetworkManager::setPlayerName(const QString &name)
     emit playerNameChanged();
 }
 
+QString NetworkManager::enemyName() const{
+    return m_enemyName;
+}
+
+void NetworkManager::setEnemyName(const QString &name){
+    const QString trimmedName = name.trimmed();
+
+    if(m_enemyName == trimmedName)
+        return;
+
+    m_enemyName = trimmedName;
+}
+
 
 PlayersModel *NetworkManager::playersModel()
 {
@@ -494,6 +507,11 @@ void NetworkManager::processJson(
         m_announceTimer.stop();
         m_playersCleanupTimer.stop();
 
+        const QString remoteName =
+            object["name"].toString();
+
+        setEnemyName(remoteName);
+
         setConnected(true);
 
         return;
@@ -572,11 +590,11 @@ void NetworkManager::acceptConnection()
 
     sendJson(response);
 
-    m_pendingRemoteName.clear();
-
     m_announceTimer.stop();
     m_playersCleanupTimer.stop();
 
+    setEnemyName(m_pendingRemoteName);
+    m_pendingRemoteName.clear();
     setConnected(true);
 }
 
@@ -700,7 +718,7 @@ void NetworkManager::disconnectFromPlayer()
             NetworkProtocol::GameName;
 
         sendJson(object);
-
+        setEnemyName("");
         m_tcpSocket->disconnectFromHost();
     }
 
@@ -762,7 +780,7 @@ void NetworkManager::onSocketDisconnected()
 
         socket->deleteLater();
     }
-
+    setEnemyName("");
     setConnected(false);
 }
 
@@ -792,6 +810,5 @@ void NetworkManager::setConnected(
         return;
 
     m_connected = value;
-
     emit connectedChanged();
 }

@@ -43,6 +43,9 @@ public:
     QString playerName() const;
     void setPlayerName(const QString &name);
 
+    Q_INVOKABLE QString enemyName() const;
+    void setEnemyName(const QString &name);
+
     PlayersModel *playersModel();
 
     bool isConnected() const;
@@ -125,6 +128,8 @@ private:
     PlayersModel m_playersModel;
 
     QString m_pendingRemoteName;
+
+    QString m_enemyName;
 
     bool m_connected = false;
 };

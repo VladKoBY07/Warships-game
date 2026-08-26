@@ -30,7 +30,7 @@ Rectangle {
                 anchors.centerIn: parent
                 text: {
                     if (gameController.gamemode === GameController.Local)
-                        return gameController.playerName
+                        return networkManager.playerName;
 
                     return "Вы"
                 }
@@ -57,7 +57,7 @@ Rectangle {
                 anchors.centerIn: parent
                 text: {
                     if (gameController.gamemode === GameController.Local)
-                        return "Игрок 2" // имя из сервера
+                        return networkManager.enemyName();
 
                     return "Компьютер"
                 }

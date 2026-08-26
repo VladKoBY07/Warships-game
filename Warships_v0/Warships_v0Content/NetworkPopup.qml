@@ -386,6 +386,7 @@ Popup {
             statusPopup.close()
 
             networkPopup.close()
+            stackView.push("PlacementScreen.qml")
         }
 
         function onNetworkError(message) {
