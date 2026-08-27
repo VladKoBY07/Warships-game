@@ -9,6 +9,8 @@
         <file>Warships_v0Content/App.qml</file>
         <file>Warships_v0Content/ConnectionRequestPopup.qml</file>
         <file>Warships_v0Content/GameScreen.qml</file>
+        <file>Warships_v0Content/images/ButtonBG.png</file>
+        <file>Warships_v0Content/images/MainMenu.png</file>
         <file>Warships_v0Content/NetworkPopup.qml</file>
         <file>Warships_v0Content/PlacementScreen.qml</file>
         <file>Warships_v0Content/ShipItem.qml</file>

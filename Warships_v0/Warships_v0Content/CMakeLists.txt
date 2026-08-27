@@ -10,12 +10,15 @@ qt6_add_qml_module(Warships_v0Content
     RESOURCE_PREFIX "/qt/qml"
     QML_FILES
         "App.qml"
+        "ConnectionRequestPopup.qml"
         "GameScreen.qml"
         "NetworkPopup.qml"
         "PlacementScreen.qml"
         "ShipItem.qml"
         "StartMenu.qml"
-        "ConnectionRequestPopup.qml"
+    RESOURCES
+        "images/MainMenu.png"
+        "images/ButtonBG.png"
 )
 
 

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Warships 1.0
+import QtQuick.Studio.DesignEffects
 
 Rectangle {
     id: startMenu
@@ -13,19 +14,9 @@ Rectangle {
     readonly property real ratio:
         Math.min(1, width / refWidth, height / refHeight)
 
-    Text {
-        id: title
-        text: "WARSHIPS"
-        font.pointSize: 20 * startMenu.ratio
-        font.bold: true
-        font.family: "Verdana"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 50 * startMenu.ratio
-    }
-
     GridLayout {
         id: grid
+        z: 2
         columns: 2
         anchors.centerIn: parent
         columnSpacing: 12 * startMenu.ratio
@@ -42,18 +33,29 @@ Rectangle {
             Button {
                 id: menuButton
                 text: modelData
-                font.pointSize: 13.5 * startMenu.ratio
+                font.letterSpacing: 0.3
+                font.styleName: "Bold"
+                font.weight: Font.ExtraBold
+                palette.buttonText: "#C1C9CC"
+                font.family: "Verdana"
+                font.pointSize: 13.5 * startMenu.ratio * 1.55
                 font.bold: true
                 Layout.preferredWidth:
-                    startMenu.refWidth * 0.1275 * startMenu.ratio
+                    startMenu.refWidth * 0.25 * startMenu.ratio
                 Layout.preferredHeight:
-                    startMenu.refHeight * 0.0525 * startMenu.ratio
+                    startMenu.refHeight * 0.12 * startMenu.ratio
+
+                background: Image {
+                    source: "images/ButtonBG.png"
+                    fillMode: Image.Stretch
+                }
 
                 TextMetrics {
                     id: textMetrics
                     text: modelData
                     font: menuButton.font
                 }
+
 
                 onClicked: {
                     switch (index) {
@@ -82,5 +84,31 @@ Rectangle {
                 }
             }
         }
+    }
+
+    Image {
+        id: mainmenu_bg
+        visible: true
+        anchors.fill: parent
+        source: "images/MainMenu.png"
+        z: 1
+        fillMode: Image.PreserveAspectCrop
+    }
+
+    Text {
+        id: copyright_text
+        y: 1019
+        color: "#C1C9CC"
+        text: qsTr("2026")
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: 0
+        anchors.bottomMargin: 0
+        font.pixelSize: startMenu.ratio * 20
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignBottom
+        font.styleName: "Bold"
+        font.family: "Verdana"
+        z: 100
     }
 }
