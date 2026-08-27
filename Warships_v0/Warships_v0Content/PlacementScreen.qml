@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
 import QtQuick.Layouts
+import Warships 1.0
 
 Item {
     id: placementScreen
@@ -13,10 +14,34 @@ Item {
     // Текст верхней плашки (используется и на экране расстановки, и в анимации старта игры)
     property string overlayText: "Подготовка к бою"
 
+    property bool playerReady: false
+    property bool opponentReady: false
+
     // Абсолютные координаты статичного дока (в системе координат gameContent)
     readonly property real dockAbsX: dock.x
     readonly property real dockAbsY: dock.y
 
+    readonly property int currentGamemode:
+        gameController.gamemode
+
+    // Сброс состояния при входе на экран
+    onVisibleChanged: {
+        if (placementScreen.visible) {
+            console.log(
+                "PlacementScreen: visible, gamemode =",
+                placementScreen.currentGamemode
+            )
+
+            placementScreen.playerReady = false
+            placementScreen.opponentReady = false
+
+            gameContent.enabled = false
+            blurEffect.amount = 0.0
+            dimOverlay.opacity = 0.0
+
+            waitingPopup.visible = false
+        }
+    }
 
     // Раскладка кораблей в доке: длина + смещение (ox, oy) внутри дока.
     ListModel {
@@ -106,6 +131,7 @@ Item {
 
             ShipItem {
                 id: shipDelegate
+
                 shipLength: len
                 cellSize: board.cellSize
                 boardX: board.x
@@ -122,29 +148,89 @@ Item {
                 y: placementScreen.dockAbsY + oy
 
                 property bool suppressMoveAnim: false
-                Behavior on x { enabled: !suppressMoveAnim; NumberAnimation { duration: 120 } }
-                Behavior on y { enabled: !suppressMoveAnim; NumberAnimation { duration: 120 } }
+
+                // Блокировка только в Local и только если игрок готов
+                enabled: placementScreen.currentGamemode
+                         !== GameController.Local
+                         || !placementScreen.playerReady
+
+                Behavior on x {
+                    enabled: !suppressMoveAnim
+                    NumberAnimation {
+                        duration: 120
+                    }
+                }
+
+                Behavior on y {
+                    enabled: !suppressMoveAnim
+                    NumberAnimation {
+                        duration: 120
+                    }
+                }
             }
         }
 
         Button {
             id: readyButton
-            text: "Готово"
+
+            text: placementScreen.playerReady
+                  ? "Отмена"
+                  : "Готово"
+
             anchors.top: board.bottom
             anchors.topMargin: 20
             anchors.horizontalCenter: board.horizontalCenter
+
+            // В PvAI кнопка всегда включена
+            // В Local:
+            //   - «Готово» доступно, пока игрок не готов
+            //   - «Отмена» доступна, пока соперник не начал игру
+            enabled: placementScreen.currentGamemode !== GameController.Local
+                         || (placementScreen.playerReady
+                             ? !placementScreen.opponentReady
+                             : true)
         }
 
-        // Логика "Готово": проверяем, что все корабли расставлены (placed == true),
-        // и если да — запускаем переход дальше.
+        Text {
+            visible: placementScreen.currentGamemode
+                     === GameController.Local
 
-        //Todo: Нужно переделать - вызвать какую-то функцию через логику доски, и как-то сконектить с .ui.qml
-        //Либо оставить, на ваше усмотрение
+            anchors.top: readyButton.bottom
+            anchors.topMargin: 12
+            anchors.horizontalCenter: board.horizontalCenter
+
+            text: {
+                if (placementScreen.currentGamemode
+                    !== GameController.Local) {
+                    return ""
+                }
+
+                return placementScreen.opponentReady
+                       ? "Соперник готов"
+                       : "Соперник не готов"
+            }
+
+            color: placementScreen.opponentReady
+                   ? "#2E7D32"
+                   : "#F57C00"
+
+            font.bold: true
+            font.pixelSize: 18
+        }
 
         Connections {
             target: readyButton
+
             function onClicked() {
+                console.log(
+                    "<PlacementScreen> readyButton: gamemode =",
+                    placementScreen.currentGamemode,
+                    "PvAI =",
+                    GameController.PvAI
+                )
+
                 var allPlaced = true
+
                 for (var i = 0; i < shipRepeater.count; ++i) {
                     if (!shipRepeater.itemAt(i).placed) {
                         allPlaced = false
@@ -152,13 +238,57 @@ Item {
                     }
                 }
 
-                if (allPlaced) {
-                    waitingPopup.visible = true
-                    // Переход на экран боя (GameScreen_ui.qml)
-                    placementScreen.stackView.push(Qt.resolvedUrl("GameScreen.qml"))
-                    waitingPopup.visible = false
-                } else {
+                if (!allPlaced) {
                     warningToastAnimation.restart()
+                    return
+                }
+
+                // PvAI: сразу переходим на GameScreen
+                if (placementScreen.currentGamemode
+                    === GameController.PvAI) {
+
+                    console.log("<PlacementScreen> PvAI: переход на GameScreen")
+
+                    placementScreen.stackView.push(
+                        Qt.resolvedUrl("GameScreen.qml")
+                    )
+
+                    return
+                }
+
+                // Local: проверка готовности противника
+                if (placementScreen.playerReady) {
+
+                    placementScreen.playerReady = false
+                    gameController.setPlayerReady(false)
+
+                    gameContent.enabled = true
+                    blurEffect.amount = 0.0
+                    dimOverlay.opacity = 0.0
+
+                    return
+                }
+
+                // Игрок нажимает «Готово»
+                placementScreen.playerReady = true
+                gameController.setPlayerReady(true)
+
+                // Блокируем перемещение кораблей
+                gameContent.enabled = false
+                blurEffect.amount = 0.35
+                dimOverlay.opacity = 0.25
+
+                // Проверяем, готов ли соперник. Если оба готовы - начинаем игру
+                if (placementScreen.opponentReady) {
+
+                    waitingPopup.visible = false
+
+                    placementScreen.stackView.push(
+                        Qt.resolvedUrl("GameScreen.qml")
+                    )
+                } else {
+                    // Ждём соперника
+                    waitingPopup.visible = true
                 }
             }
         }
@@ -342,5 +472,39 @@ Item {
         ScriptAction { script: gameContent.enabled = true }
         ScriptAction { script: introBox.anchors.top = placementScreen.top }
         ScriptAction { script: introBox.anchors.topMargin = 40 }
+    }
+
+    Connections {
+        target: gameController
+
+        function onOpponentReadyChanged() {
+            placementScreen.opponentReady =
+                gameController.opponentReady
+
+            // Если оба готовы — переходим на GameScreen
+            if (placementScreen.playerReady
+            && placementScreen.opponentReady) {
+
+                waitingPopup.visible = true
+
+                // Небольшая задержка перед переходом
+                transitionTimer.start()
+            }
+        }
+    }
+
+    Timer {
+        id: transitionTimer
+        interval: 500
+        running: false
+        repeat: false
+
+        onTriggered: {
+            waitingPopup.visible = false
+
+            placementScreen.stackView.push(
+                Qt.resolvedUrl("GameScreen.qml")
+            )
+        }
     }
 }

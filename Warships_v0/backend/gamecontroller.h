@@ -45,9 +45,13 @@ public:
     Q_INVOKABLE void playerShootsAt(int x, int y);
 
     // запуск игры, режимы
-    void clearController();
+    Q_INVOKABLE void clearController();
     Q_INVOKABLE void start_PvAI();
     Q_INVOKABLE void start_Local();
+
+    Q_PROPERTY(bool opponentReady READ opponentReady NOTIFY opponentReadyChanged)
+    bool opponentReady() const;
+    Q_INVOKABLE void setPlayerReady(bool ready);
 
 signals:
     void turnChanged();
@@ -57,6 +61,8 @@ signals:
     void remoteShotReceived(int x, int y);
 
     void opponentDisconnected();
+
+    void opponentReadyChanged();
 
 private slots:
     void onGameActionReceived(const QString &action, const QVariantMap &data);
@@ -71,7 +77,9 @@ private:
     void sendNetworkShot(int x, int y);
     void handleRemoteShot(int x, int y);
 
-private:
+    void setOpponentReady(bool ready);
+
+
     GameBoard *m_gameboard = nullptr;
     ai_player *m_ai = nullptr;
     NetworkManager *m_networkManager = nullptr;
@@ -80,6 +88,8 @@ private:
 
     Turn m_turn = Turn::MyTurn;
     Gamemodes m_gamemode = Gamemodes::PvAI;
+
+    bool m_opponentReady = false;
 };
 
 #endif // GAMECONTROLLER_H

@@ -67,6 +67,8 @@ public:
 
     Q_INVOKABLE QString deviceId() const;
 
+    Q_INVOKABLE void resetNetworkState();
+
 signals:
     void playerNameChanged();
     void connectedChanged();

@@ -48,6 +48,31 @@ NetworkManager::NetworkManager(QObject *parent)
         );
 }
 
+void NetworkManager::resetNetworkState()
+{
+    qDebug()
+    << "cpp: <NetworkManager> "
+    << "Сброс сетевого состояния";
+
+    if (m_tcpSocket) {
+        QTcpSocket *socket =
+            m_tcpSocket.data();
+
+        m_tcpSocket.clear();
+
+        socket->abort();
+        socket->deleteLater();
+    }
+
+    m_announceTimer.stop();
+    m_playersCleanupTimer.stop();
+
+    m_pendingRemoteName.clear();
+    m_enemyName.clear();
+
+    setConnected(false);
+}
+
 
 QString NetworkManager::playerName() const
 {

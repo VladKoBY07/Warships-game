@@ -27,6 +27,9 @@ Window {
         function onOpponentDisconnected() {
             console.log("<App> Соперник отключился")
 
+            // Сброс игровых состояний
+            gameController.clearController();
+
             while (stackView.depth > 1) {
                 stackView.pop()
             }

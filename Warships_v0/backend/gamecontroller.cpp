@@ -50,11 +50,64 @@ void GameController::setPlayerName(const QString &name)
     emit playerNameChanged();
 }
 
-void GameController::clearController(){
-    m_gameboard->clearBoards();
-    m_ai->aiBoard.clearBoards();
+bool GameController::opponentReady() const
+{
+    return m_opponentReady;
+}
+
+void GameController::setOpponentReady(bool ready)
+{
+    if (m_opponentReady == ready)
+        return;
+
+    m_opponentReady = ready;
+
+    emit opponentReadyChanged();
+}
+
+void GameController::setPlayerReady(bool ready)
+{
+    if (!m_networkManager)
+        return;
+
+    if (m_gamemode != Gamemodes::Local)
+        return;
+
+    QVariantMap data;
+
+    data["ready"] = ready;
+
+    m_networkManager->sendGameAction(QStringLiteral("GAME_READY"), data);
+
+    qDebug()
+        << "cpp: <Controller> "
+        << "Отправлена готовность:"
+        << ready;
+}
+
+void GameController::clearController()
+{
+    qDebug()
+    << "cpp: <Controller> Очистка игрового состояния";
+
+    if (m_gameboard)
+        m_gameboard->clearBoards();
+
+    if (m_ai)
+        m_ai->aiBoard.clearBoards();
+
     killed_ships = 0;
     alive_ships = ships_sum;
+
+    setTurn(Turn::MyTurn);
+
+    setOpponentReady(false);
+
+    // Сброс сетевого подключения
+    if (m_networkManager) {
+        m_networkManager->resetNetworkState();
+        m_networkManager->stopDiscovery();
+    }
 }
 
 void GameController::start_PvAI(){
@@ -162,6 +215,18 @@ void GameController::sendNetworkShot(int x, int y){
 
 void GameController::onGameActionReceived(const QString &action, const QVariantMap &data)
 {
+    if (action == "GAME_READY") {
+        const bool ready = data.value("ready").toBool();
+        setOpponentReady(ready);
+
+        qDebug()
+            << "cpp: <Controller> "
+            << "Соперник изменил готовность:"
+            << ready;
+
+        return;
+    }
+
     if (action == "GAME_START") {
         const QString myId = m_networkManager->deviceId();
         const QString remoteId = data.value("myDeviceId").toString();
@@ -244,8 +309,6 @@ void GameController::onOpponentDisconnected()
     << "Соперник отключился";
 
     clearController();
-
-    setTurn(Turn::MyTurn);
 
     emit opponentDisconnected();
 }
