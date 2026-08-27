@@ -61,6 +61,7 @@ signals:
 private slots:
     void onGameActionReceived(const QString &action, const QVariantMap &data);
     void onOpponentDisconnected();
+    void onConnectedChanged();
 
 private:
     void setTurn(Turn new_turn);

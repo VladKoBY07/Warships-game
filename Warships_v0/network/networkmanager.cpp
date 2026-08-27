@@ -812,3 +812,8 @@ void NetworkManager::setConnected(
     m_connected = value;
     emit connectedChanged();
 }
+
+QString NetworkManager::deviceId() const
+{
+    return m_deviceId;
+}

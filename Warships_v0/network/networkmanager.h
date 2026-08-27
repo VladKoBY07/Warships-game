@@ -65,6 +65,8 @@ public:
         const QVariantMap &data
         );
 
+    Q_INVOKABLE QString deviceId() const;
+
 signals:
     void playerNameChanged();
     void connectedChanged();

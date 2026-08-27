@@ -18,6 +18,7 @@ GameController::GameController(GameBoard *gameboard,
 
     connect(m_networkManager, &NetworkManager::gameActionReceived, this, &GameController::onGameActionReceived);
     connect(m_networkManager, &NetworkManager::opponentDisconnected, this, &GameController::onOpponentDisconnected);
+    connect(m_networkManager, &NetworkManager::connectedChanged, this, &GameController::onConnectedChanged);
 }
 
 void GameController::setTurn(Turn turn)
@@ -72,7 +73,6 @@ void GameController::start_Local(){
     clearController();
 
     setGamemode(Gamemodes::Local);
-    // TODO: выбор хода
 }
 
 void GameController::playerShootsAt(int x, int y) // пока только с ии
@@ -162,6 +162,36 @@ void GameController::sendNetworkShot(int x, int y){
 
 void GameController::onGameActionReceived(const QString &action, const QVariantMap &data)
 {
+    if (action == "GAME_START") {
+        const QString myId = m_networkManager->deviceId();
+        const QString remoteId = data.value("myDeviceId").toString();
+
+        if (myId.isEmpty() || remoteId.isEmpty()) {
+            qWarning()
+            << "cpp: <Controller> "
+            << "Некорректный GAME_START";
+            return;
+        }
+
+        const bool iAmFirst = (myId > remoteId);
+
+        if (iAmFirst) {
+            setTurn(Turn::MyTurn);
+
+            qDebug()
+                << "cpp: <Controller> "
+                << "Мой ход первым (myId > remoteId)";
+        } else {
+            setTurn(Turn::EnemyTurn);
+
+            qDebug()
+                << "cpp: <Controller> "
+                << "Ход соперника первым (myId < remoteId)";
+        }
+
+        return;
+    }
+
     if (action == "SHOT") {
         const int x =
             data.value("x").toInt();
@@ -255,4 +285,26 @@ void GameController::handleRemoteShot(int x, int y)
     } else {
         setTurn(Turn::EnemyTurn);
     }
+}
+
+void GameController::onConnectedChanged()
+{
+    if (!m_networkManager)
+        return;
+
+    if (!m_networkManager->isConnected())
+        return;
+
+    const QString myId = m_networkManager->deviceId();
+
+    QVariantMap data;
+
+    data["myDeviceId"] = myId;
+
+    m_networkManager->sendGameAction(QStringLiteral("GAME_START"), data);
+
+    qDebug()
+        << "cpp: <Controller> "
+        << "Отправлен GAME_START, deviceId:"
+        << myId;
 }
