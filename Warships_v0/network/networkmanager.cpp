@@ -96,7 +96,7 @@ QString NetworkManager::enemyName() const{
     return m_enemyName;
 }
 
-void NetworkManager::setEnemyName(const QString &name){
+void NetworkManager::setEnemyName(const QString name){
     const QString trimmedName = name.trimmed();
 
     if(m_enemyName == trimmedName)
@@ -554,7 +554,7 @@ void NetworkManager::processJson(
 
         emit connectionRejected(reason);
 
-        closeCurrentSocket();
+        closeCurrentSocket(false);
 
         return;
     }
@@ -649,7 +649,11 @@ void NetworkManager::rejectConnection()
 
     m_pendingRemoteName.clear();
 
-    m_tcpSocket->disconnectFromHost();
+    QTcpSocket *socket = m_tcpSocket.data();
+    m_tcpSocket.clear();
+
+    socket->disconnectFromHost();
+    socket->deleteLater();
 }
 
 
@@ -775,11 +779,12 @@ void NetworkManager::closeCurrentSocket(bool notifyOpponent)
 
         m_tcpSocket.clear();
 
-        socket->abort();
+        socket->disconnectFromHost();
         socket->deleteLater();
     }
 
     m_pendingRemoteName.clear();
+    m_enemyName.clear();
 
     setConnected(false);
 }
@@ -794,6 +799,11 @@ void NetworkManager::onSocketDisconnected()
     if (m_connected) {
         emit opponentDisconnected();
     }
+    else if (m_tcpSocket) {
+        qDebug()
+        << "cpp: <NetworkManager> "
+        << "Подключение отменено до установления";
+    }
 
     m_pendingRemoteName.clear();
 
@@ -805,7 +815,8 @@ void NetworkManager::onSocketDisconnected()
 
         socket->deleteLater();
     }
-    setEnemyName("");
+
+    m_enemyName.clear();
     setConnected(false);
 }
 
@@ -823,7 +834,7 @@ void NetworkManager::onSocketError(
 
     emit networkError(message);
 
-    closeCurrentSocket();
+    closeCurrentSocket(false);
 }
 
 

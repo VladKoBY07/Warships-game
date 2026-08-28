@@ -262,9 +262,9 @@ Item {
                     placementScreen.playerReady = false
                     gameController.setPlayerReady(false)
 
-                    gameContent.enabled = true
-                    blurEffect.amount = 0.0
-                    dimOverlay.opacity = 0.0
+                    // Отмена готовности
+                    shipRepeater.enabled = true
+                    clearButton.enabled = true
 
                     return
                 }
@@ -274,21 +274,18 @@ Item {
                 gameController.setPlayerReady(true)
 
                 // Блокируем перемещение кораблей
-                gameContent.enabled = false
-                blurEffect.amount = 0.35
-                dimOverlay.opacity = 0.25
+                shipRepeater.enabled = false
+                clearButton.enabled = false
 
                 // Проверяем, готов ли соперник. Если оба готовы - начинаем игру
                 if (placementScreen.opponentReady) {
-
-                    waitingPopup.visible = false
 
                     placementScreen.stackView.push(
                         Qt.resolvedUrl("GameScreen.qml")
                     )
                 } else {
                     // Ждём соперника
-                    waitingPopup.visible = true
+                    //waitingPopup.visible = true
                 }
             }
         }

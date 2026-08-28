@@ -44,7 +44,7 @@ public:
     void setPlayerName(const QString &name);
 
     Q_INVOKABLE QString enemyName() const;
-    void setEnemyName(const QString &name);
+    void setEnemyName(const QString name);
 
     PlayersModel *playersModel();
 
