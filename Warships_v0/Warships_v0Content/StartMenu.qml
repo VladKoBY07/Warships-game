@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Warships 1.0
 import QtQuick.Studio.DesignEffects
+import QtMultimedia
 
 Rectangle {
     id: startMenu
@@ -88,13 +89,22 @@ Rectangle {
         }
     }
 
-    AnimatedImage {
-        id: mainmenu_bg
-        visible: true
+    Video{
+        id: menuBG
         anchors.fill: parent
-        source: "images/MenuAnimated.gif"
-        z: 1
-        fillMode: Image.PreserveAspectCrop
+        source: "images/MenuAnimated.mp4"
+        playbackRate: 1
+        fillMode: VideoOutput.PreserveAspectCrop
+        loops: MediaPlayer.Infinite
+
+        Image {
+            anchors.fill: parent
+            source: "images/MainMenu.png"
+            fillMode: Image.PreserveAspectCrop
+            visible: menuBG.playbackState !== MediaPlayer.PlayingState
+        }
+
+        Component.onCompleted: play()
     }
 
     Text {

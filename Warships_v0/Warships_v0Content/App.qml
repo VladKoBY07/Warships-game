@@ -8,6 +8,7 @@ Window {
     height: Constants.height
 
     visible: true
+    //visibility: Window.FullScreen потом включить назад
 
     property alias networkPopup: networkPopup
 

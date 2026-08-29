@@ -3,15 +3,14 @@ import QtQuick.Controls
 import QtQuick.Effects
 import QtQuick.Layouts
 import Warships 1.0
+import QtMultimedia
 
 Item {
     id: placementScreen
-    anchors.fill: parent // размер под родителя, как у главного меню
+    anchors.fill: parent
 
-    //свойство для доступа к stackView
     property StackView stackView: StackView.view
 
-    // Текст верхней плашки (используется и на экране расстановки, и в анимации старта игры)
     property string overlayText: "Подготовка к бою"
 
     property bool playerReady: false
@@ -46,16 +45,42 @@ Item {
     // Раскладка кораблей в доке: длина + смещение (ox, oy) внутри дока.
     ListModel {
         id: shipDockLayout
-        ListElement { len: 4; ox: 15;  oy: 45  }
-        ListElement { len: 3; ox: 15;  oy: 100 }
-        ListElement { len: 3; ox: 15;  oy: 155 }
-        ListElement { len: 2; ox: 15;  oy: 210 }
-        ListElement { len: 2; ox: 110; oy: 210 }
-        ListElement { len: 2; ox: 15;  oy: 265 }
-        ListElement { len: 1; ox: 15;  oy: 320 }
-        ListElement { len: 1; ox: 65;  oy: 320 }
-        ListElement { len: 1; ox: 115; oy: 320 }
-        ListElement { len: 1; ox: 165; oy: 320 }
+
+        // 4-палубный
+        ListElement { len: 4; ox: 15;  oy: 50  }
+
+        // два 3-палубных
+        ListElement { len: 3; ox: 15;  oy: 110 }
+        ListElement { len: 3; ox: 15;  oy: 170 }
+
+        // три 2-палубных
+        ListElement { len: 2; ox: 15;  oy: 230 }
+        ListElement { len: 2; ox: 15; oy: 290 }
+        ListElement { len: 2; ox: 15;  oy: 350 }
+
+        // четыре 1-палубных
+        ListElement { len: 1; ox: 15;  oy: 410 }
+        ListElement { len: 1; ox: 75;  oy: 410 }
+        ListElement { len: 1; ox: 135; oy: 410 }
+        ListElement { len: 1; ox: 195; oy: 410 }
+    }
+
+    Video{
+        id: placementBG
+        anchors.fill: parent
+        source: "images/SeaAnimated.mp4"
+        playbackRate: 1
+        fillMode: VideoOutput.PreserveAspectCrop
+        loops: MediaPlayer.Infinite
+
+        Image {
+            anchors.fill: parent
+            source: "images/Sea.jpg"
+            fillMode: Image.PreserveAspectCrop
+            visible: placementBG.playbackState !== MediaPlayer.PlayingState
+        }
+
+        Component.onCompleted: play()
     }
 
     // ===== Весь игровой контент — можно блюрить и блокировать целиком =====
@@ -63,19 +88,66 @@ Item {
         id: gameContent
         anchors.fill: parent
         enabled: false
+        z: 5
+
+        // белые плашки вокруг поля
+        Rectangle {
+            id: topOverlay
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: board.top
+            z: 1
+            color: "#FFFFFF"
+            opacity: 0.35
+        }
+
+        Rectangle {
+            id: bottomOverlay
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: board.bottom
+            anchors.bottom: parent.bottom
+            z: 1
+            color: "#FFFFFF"
+            opacity: 0.35
+        }
+
+        Rectangle {
+            id: leftOverlay
+            anchors.left: parent.left
+            anchors.right: board.left
+            anchors.top: board.top
+            anchors.bottom: board.bottom
+            z: 1
+            color: "#FFFFFF"
+            opacity: 0.35
+        }
+
+        Rectangle {
+            id: rightOverlay
+            anchors.left: board.right
+            anchors.right: parent.right
+            anchors.top: board.top
+            anchors.bottom: board.bottom
+            z: 1
+            color: "#FFFFFF"
+            opacity: 0.35
+        }
 
         Rectangle {
             id: board
             anchors.centerIn: parent
-            width: 10 * 40
-            height: 10 * 40
-            color: "#FFFFFF"
+            width: 10 * 50
+            height: 10 * 50
+            color: "transparent"
             border.color: "#BDBDBD"
             border.width: 1
+            z: 2
 
             property int cols: 10
             property int rows: 10
-            property int cellSize: 40
+            property int cellSize: 50
 
             Repeater {
                 model: board.rows
@@ -107,12 +179,13 @@ Item {
             anchors.left: parent.left
             anchors.leftMargin: 20
             anchors.top: board.top
-            width: 230
-            height: 380
+            width: 260
+            height: board.height
             color: "#EEEEEE"
             border.color: "#BDBDBD"
             border.width: 1
             radius: 8
+            z: 3
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -131,6 +204,7 @@ Item {
 
             ShipItem {
                 id: shipDelegate
+                z: 5
 
                 shipLength: len
                 cellSize: board.cellSize
@@ -172,6 +246,7 @@ Item {
 
         Button {
             id: readyButton
+            z: 10
 
             text: placementScreen.playerReady
                   ? "Отмена"
@@ -198,6 +273,7 @@ Item {
             anchors.top: readyButton.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: board.horizontalCenter
+            z: 10
 
             text: {
                 if (placementScreen.currentGamemode
@@ -296,6 +372,7 @@ Item {
             anchors.top: readyButton.bottom
             anchors.topMargin: 12
             anchors.horizontalCenter: board.horizontalCenter
+            z: 10
         }
 
         Connections {
@@ -332,6 +409,7 @@ Item {
         anchors.centerIn: Overlay.overlay
         modal: true
         closePolicy: Popup.NoAutoClose
+        z: 20
 
         ColumnLayout {
             anchors.centerIn: parent
@@ -357,6 +435,7 @@ Item {
 
         property real amount: 0.0
         blur: amount
+        z: 20
     }
 
     // Затемнение фона
@@ -365,12 +444,13 @@ Item {
         anchors.fill: parent
         color: "#000000"
         opacity: 0.0
+        z: 15
     }
 
     // ===== Уведомление "не все корабли расставлены" =====
     Rectangle {
         id: warningToast
-        z: 1000
+        z: 30
         width: 460
         height: 100
         radius: 10
@@ -429,6 +509,7 @@ Item {
         opacity: 0.0
         anchors.horizontalCenter: parent.horizontalCenter
         y: placementScreen.height / 2 - height / 2 // стартовая позиция — по центру экрана
+        z: 40
 
         Text {
             anchors.centerIn: parent

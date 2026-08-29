@@ -10,9 +10,14 @@
         <file>Warships_v0Content/ConnectionRequestPopup.qml</file>
         <file>Warships_v0Content/GameScreen.qml</file>
         <file>Warships_v0Content/images/ButtonBG.png</file>
+        <file>Warships_v0Content/images/ButtonBG_hover.png</file>
         <file>Warships_v0Content/images/ButtonBG_not_pressed.png</file>
         <file>Warships_v0Content/images/ButtonBG_pressed.png</file>
         <file>Warships_v0Content/images/MainMenu.png</file>
+        <file>Warships_v0Content/images/MenuAnimated.gif</file>
+        <file>Warships_v0Content/images/MenuAnimated.mp4</file>
+        <file>Warships_v0Content/images/Sea.jpg</file>
+        <file>Warships_v0Content/images/SeaAnimated.mp4</file>
         <file>Warships_v0Content/NetworkPopup.qml</file>
         <file>Warships_v0Content/PlacementScreen.qml</file>
         <file>Warships_v0Content/ShipItem.qml</file>

@@ -22,6 +22,9 @@ qt6_add_qml_module(Warships_v0Content
         "images/ButtonBG_not_pressed.png"
         "images/ButtonBG_pressed.png"
         "images/MainMenu.png"
+        "images/MenuAnimated.mp4"
+        "images/Sea.jpg"
+        "images/SeaAnimated.mp4"
 )
 
 
