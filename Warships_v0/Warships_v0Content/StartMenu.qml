@@ -9,18 +9,17 @@ Rectangle {
     anchors.fill: parent
     color: "#f0f4f8"
 
-    readonly property real refWidth: Screen.width
-    readonly property real refHeight: Screen.height
-    readonly property real ratio:
-        Math.min(1, width / refWidth, height / refHeight)
+    readonly property real refWidth: 1920
+    readonly property real refHeight: 1080
+    readonly property real ratio: Math.min(1.0, Math.min(width / refWidth, height / refHeight))
 
     GridLayout {
         id: grid
         z: 2
-        columns: 2
+        columns: startMenu.width < 980 ? 1 : 2
         anchors.centerIn: parent
-        columnSpacing: 12 * startMenu.ratio
-        rowSpacing: 12 * startMenu.ratio
+        columnSpacing: 5 * startMenu.ratio
+        rowSpacing: 4 * startMenu.ratio
 
         Repeater {
             model: [
@@ -38,15 +37,18 @@ Rectangle {
                 font.weight: Font.ExtraBold
                 palette.buttonText: "#C1C9CC"
                 font.family: "Verdana"
-                font.pointSize: 13.5 * startMenu.ratio * 1.55
+                font.pointSize: menuButton.height * 0.17
                 font.bold: true
-                Layout.preferredWidth:
-                    startMenu.refWidth * 0.25 * startMenu.ratio
-                Layout.preferredHeight:
-                    startMenu.refHeight * 0.12 * startMenu.ratio
+                Layout.preferredWidth: Math.max(400, 420 * startMenu.ratio)
+                Layout.preferredHeight: Math.max(110, 110 * startMenu.ratio)
+
+                leftPadding: menuButton.pressed ? 8 : 2
+                topPadding: menuButton.pressed ? 8 : 2
 
                 background: Image {
-                    source: "images/ButtonBG.png"
+                    source: menuButton.pressed? "images/ButtonBG_pressed.png" :
+                            menuButton.hovered? "images/ButtonBG_hover.png" :
+                                                "images/ButtonBG_not_pressed.png"
                     fillMode: Image.Stretch
                 }
 
@@ -86,11 +88,11 @@ Rectangle {
         }
     }
 
-    Image {
+    AnimatedImage {
         id: mainmenu_bg
         visible: true
         anchors.fill: parent
-        source: "images/MainMenu.png"
+        source: "images/MenuAnimated.gif"
         z: 1
         fillMode: Image.PreserveAspectCrop
     }
@@ -102,8 +104,8 @@ Rectangle {
         text: qsTr("2026")
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 0
-        anchors.bottomMargin: 0
+        anchors.leftMargin: 50
+        anchors.bottomMargin: 10
         font.pixelSize: startMenu.ratio * 20
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignBottom

@@ -17,8 +17,19 @@ qt6_add_qml_module(Warships_v0Content
         "ShipItem.qml"
         "StartMenu.qml"
     RESOURCES
-        "images/MainMenu.png"
         "images/ButtonBG.png"
+        "images/ButtonBG_hover.png"
+        "images/ButtonBG_not_pressed.png"
+        "images/ButtonBG_pressed.png"
+        "images/MainMenu.png"
 )
 
+
+qt6_add_resources(Warships_v0Content Warships_v0ContentBigResource
+    BIG_RESOURCES
+    PREFIX "/qt/qml/Warships_v0Content"
+    VERSION 1.0
+    FILES 
+        "images/MenuAnimated.gif"
+)
 
