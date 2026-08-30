@@ -181,11 +181,16 @@ Item {
             anchors.top: board.top
             width: 260
             height: board.height
-            color: "#EEEEEE"
-            border.color: "#BDBDBD"
-            border.width: 1
-            radius: 8
+            color: "transparent"
             z: 3
+
+            Image {
+                id: dockBG
+                anchors.fill: parent
+                source: "images/DockTable.png"
+                fillMode: Image.Stretch
+                z: 0
+            }
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -194,6 +199,7 @@ Item {
                 text: "Док"
                 font.bold: true
                 color: "#616161"
+                z: 1
             }
         }
 

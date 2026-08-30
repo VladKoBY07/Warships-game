@@ -26,6 +26,7 @@ qt6_add_qml_module(Warships_v0Content
         "images/MenuAnimated.mp4"
         "images/Sea.jpg"
         "images/SeaAnimated.mp4"
+        "images/DockTable.png"
 )
 
 
