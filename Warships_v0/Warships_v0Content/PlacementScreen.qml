@@ -98,8 +98,8 @@ Item {
             anchors.top: parent.top
             anchors.bottom: board.top
             z: 1
-            color: "#FFFFFF"
-            opacity: 0.35
+            color: "#162433"
+            opacity: 0.7
         }
 
         Rectangle {
@@ -109,8 +109,8 @@ Item {
             anchors.top: board.bottom
             anchors.bottom: parent.bottom
             z: 1
-            color: "#FFFFFF"
-            opacity: 0.35
+            color: "#162433"
+            opacity: 0.7
         }
 
         Rectangle {
@@ -120,8 +120,8 @@ Item {
             anchors.top: board.top
             anchors.bottom: board.bottom
             z: 1
-            color: "#FFFFFF"
-            opacity: 0.35
+            color: "#162433"
+            opacity: 0.7
         }
 
         Rectangle {
@@ -131,8 +131,8 @@ Item {
             anchors.top: board.top
             anchors.bottom: board.bottom
             z: 1
-            color: "#FFFFFF"
-            opacity: 0.35
+            color: "#162433"
+            opacity: 0.7
         }
 
         Rectangle {
@@ -142,7 +142,7 @@ Item {
             height: 10 * 50
             color: "transparent"
             border.color: "#BDBDBD"
-            border.width: 1
+            border.width: 2
             z: 2
 
             property int cols: 10
@@ -156,7 +156,7 @@ Item {
                     height: board.cellSize
                     y: index * board.cellSize
                     color: "transparent"
-                    border.color: "#EEEEEE"
+                    border.color: "#C1C9CC"
                     border.width: 1
                 }
             }
@@ -168,7 +168,7 @@ Item {
                     height: board.height
                     x: index * board.cellSize
                     color: "transparent"
-                    border.color: "#EEEEEE"
+                    border.color: "#C1C9CC"
                     border.width: 1
                 }
             }
@@ -248,12 +248,23 @@ Item {
             id: readyButton
             z: 10
 
+            width: board.width * 0.5
+            height: width / 3.4
+
+            font.letterSpacing: 0.3
+            font.styleName: "Bold"
+            font.weight: Font.ExtraBold
+            palette.buttonText: "#C1C9CC"
+            font.family: "Verdana"
+            font.pointSize: height / 4
+            font.bold: true
+
             text: placementScreen.playerReady
                   ? "Отмена"
                   : "Готово"
 
             anchors.top: board.bottom
-            anchors.topMargin: 20
+            anchors.topMargin: 50
             anchors.horizontalCenter: board.horizontalCenter
 
             // В PvAI кнопка всегда включена
@@ -264,6 +275,16 @@ Item {
                          || (placementScreen.playerReady
                              ? !placementScreen.opponentReady
                              : true)
+
+            leftPadding: readyButton.pressed ? 8 : 2
+            topPadding: readyButton.pressed ? 8 : 2
+
+            background: Image {
+                source: readyButton.pressed? "images/ButtonBG_pressed.png" :
+                        readyButton.hovered? "images/ButtonBG_hover.png" :
+                                            "images/ButtonBG_not_pressed.png"
+                fillMode: Image.Stretch
+            }
         }
 
         Text {
@@ -500,23 +521,30 @@ Item {
     // ===== Текстовая плашка — используется и при входе на экран
     Rectangle {
         id: introBox
-        width: 380
-        height: 90
-        radius: 10
-        color: "#F5F5F5"
-        border.color: "#BDBDBD"
-        border.width: 1
+        width: 350
+        height: width / 2.1
+        color: "transparent"
         opacity: 0.0
         anchors.horizontalCenter: parent.horizontalCenter
         y: placementScreen.height / 2 - height / 2 // стартовая позиция — по центру экрана
         z: 40
 
+        Image {
+            id: introBG
+            anchors.fill: parent
+            source: "images/Logo_BG.png"
+            fillMode: Image.Stretch
+            z: 0
+        }
+
         Text {
             anchors.centerIn: parent
+            topPadding: 67
             text: "Подготовка к бою"
             font.pixelSize: 30
             font.bold: true
-            color: "#000000"
+            color: "#C1C9CC"
+            z: 1
         }
     }
 
@@ -537,7 +565,7 @@ Item {
         NumberAnimation {
             target: introBox
             property: "y"
-            to: 40
+            to: 30
             duration: 500
             easing.type: Easing.InOutQuad
         }
@@ -549,7 +577,7 @@ Item {
 
         ScriptAction { script: gameContent.enabled = true }
         ScriptAction { script: introBox.anchors.top = placementScreen.top }
-        ScriptAction { script: introBox.anchors.topMargin = 40 }
+        ScriptAction { script: introBox.anchors.topMargin = 30 }
     }
 
     Connections {
