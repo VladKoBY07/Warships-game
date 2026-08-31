@@ -21,12 +21,16 @@ qt6_add_qml_module(Warships_v0Content
         "images/ButtonBG_hover.png"
         "images/ButtonBG_not_pressed.png"
         "images/ButtonBG_pressed.png"
+        "images/DockTable.png"
         "images/Logo_BG.png"
         "images/MainMenu.png"
         "images/MenuAnimated.mp4"
         "images/Sea.jpg"
         "images/SeaAnimated.mp4"
-        "images/DockTable.png"
+        "images/ships/ship4.png"
+        "images/ships/ship1.png"
+        "images/ships/ship3.png"
+        "images/ships/ship2.png"
 )
 
 

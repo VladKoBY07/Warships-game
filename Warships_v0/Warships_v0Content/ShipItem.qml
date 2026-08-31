@@ -28,13 +28,24 @@ Item {
     width: horizontal ? shipLength * cellSize : cellSize
     height: horizontal ? cellSize : shipLength * cellSize
 
-    Rectangle {
+    Image {
+        id: shipImage
+        anchors.centerIn: parent
+        source: "images/ships/ship" + shipLength + ".png"
+
+        width: shipLength * cellSize
+        height: cellSize
+
+        rotation: root.horizontal ? 0 : 90
+    }
+
+    /*Rectangle {
         anchors.fill: parent
         radius: 6
         color: placed ? "#4CAF50" : "#2196F3"
         border.color: "#0D47A1"
         border.width: 2
-    }
+    }*/
 
     function isInDock() {
         var centerX = root.x + root.width / 2

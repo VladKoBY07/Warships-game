@@ -20,6 +20,10 @@
         <file>Warships_v0Content/images/MenuAnimated.mp4</file>
         <file>Warships_v0Content/images/Sea.jpg</file>
         <file>Warships_v0Content/images/SeaAnimated.mp4</file>
+        <file>Warships_v0Content/images/ships/ship1.png</file>
+        <file>Warships_v0Content/images/ships/ship2.png</file>
+        <file>Warships_v0Content/images/ships/ship3.png</file>
+        <file>Warships_v0Content/images/ships/ship4.png</file>
         <file>Warships_v0Content/NetworkPopup.qml</file>
         <file>Warships_v0Content/PlacementScreen.qml</file>
         <file>Warships_v0Content/ShipItem.qml</file>
