@@ -27,18 +27,10 @@ qt6_add_qml_module(Warships_v0Content
         "images/MenuAnimated.mp4"
         "images/Sea.jpg"
         "images/SeaAnimated.mp4"
-        "images/ships/ship4.png"
         "images/ships/ship1.png"
-        "images/ships/ship3.png"
         "images/ships/ship2.png"
+        "images/ships/ship3.png"
+        "images/ships/ship4.png"
 )
 
-
-qt6_add_resources(Warships_v0Content Warships_v0ContentBigResource
-    BIG_RESOURCES
-    PREFIX "/qt/qml/Warships_v0Content"
-    VERSION 1.0
-    FILES 
-        "images/MenuAnimated.gif"
-)
 

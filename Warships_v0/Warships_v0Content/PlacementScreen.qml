@@ -37,8 +37,6 @@ Item {
             gameContent.enabled = false
             blurEffect.amount = 0.0
             dimOverlay.opacity = 0.0
-
-            waitingPopup.visible = false
         }
     }
 
@@ -343,7 +341,7 @@ Item {
                 }
 
                 if (!allPlaced) {
-                    warningToastAnimation.restart()
+                    warningBlinkAnimation.start()
                     return
                 }
 
@@ -389,7 +387,6 @@ Item {
                     )
                 } else {
                     // Ждём соперника
-                    //waitingPopup.visible = true
                 }
             }
         }
@@ -430,28 +427,6 @@ Item {
 
     }
 
-    Popup {
-        id: waitingPopup
-        width: 400
-        height: 240
-        anchors.centerIn: Overlay.overlay
-        modal: true
-        closePolicy: Popup.NoAutoClose
-        z: 20
-
-        ColumnLayout {
-            anchors.centerIn: parent
-            spacing: 10
-
-            // возможно поменяю иконку загрузки
-            BusyIndicator {
-                running: true
-                Layout.alignment: Qt.AlignHCenter
-            }
-            Text { text: "Ждём второго игрока..."; font.bold: true }
-        }
-    }
-
     // ===== Блюр поверх gameContent =====
     MultiEffect {
         id: blurEffect
@@ -475,56 +450,6 @@ Item {
         z: 15
     }
 
-    // ===== Уведомление "не все корабли расставлены" =====
-    Rectangle {
-        id: warningToast
-        z: 30
-        width: 460
-        height: 100
-        radius: 10
-
-        color: "#FCE4EC"
-        border.color: "#880E4F"
-        border.width: 2
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        y: parent.height
-
-        Text {
-            anchors.centerIn: parent
-            text: "Не все корабли расставлены!"
-            font.pixelSize: 28
-            font.bold: true
-            color: "#880E4F"
-        }
-    }
-
-    // Анимация выдвижения плажки
-
-    SequentialAnimation {
-        id: warningToastAnimation
-
-        NumberAnimation {
-            target: warningToast;
-            property: "y";
-            from: warningToast.parent.height;
-            to: warningToast.parent.height - warningToast.height - 40;
-            duration: 300;
-            easing.type: Easing.OutQuad
-        }
-
-        PauseAnimation { duration: 1400 }
-
-        NumberAnimation {
-            target: warningToast;
-            property: "y";
-            from: warningToast.parent.height - warningToast.height - 40;
-            to: warningToast.parent.height;
-            duration: 300;
-            easing.type: Easing.InQuad
-        }
-    }
-
     // ===== Текстовая плашка — используется и при входе на экран
     Rectangle {
         id: introBox
@@ -545,6 +470,7 @@ Item {
         }
 
         Text {
+            id: introText
             anchors.centerIn: parent
             topPadding: 75
             text: "Подготовка к бою"
@@ -552,6 +478,56 @@ Item {
             font.bold: true
             color: "#C1C9CC"
             z: 1
+        }
+    }
+
+    SequentialAnimation {
+        id: warningBlinkAnimation
+        running: false
+        ScriptAction {
+            script: {
+                introText.text = "Не все корабли расставлены!"
+                introText.color = "#F44336"
+                introText.opacity = 1.0
+            }
+        }
+
+
+        NumberAnimation {
+            target: introText
+            property: "opacity"
+            from: 1.0
+            to: 0.0
+            duration: 700
+        }
+        NumberAnimation {
+            target: introText
+            property: "opacity"
+            from: 0.0
+            to: 1.0
+            duration: 500
+        }
+        NumberAnimation {
+            target: introText
+            property: "opacity"
+            from: 1.0
+            to: 0.0
+            duration: 700
+        }
+
+        ScriptAction {
+            script: {
+                introText.text = "Подготовка к бою"
+                introText.color = "#C1C9CC"
+            }
+        }
+
+        NumberAnimation {
+            target: introText
+            property: "opacity"
+            from: 0.0
+            to: 1.0
+            duration: 500
         }
     }
 
@@ -598,8 +574,6 @@ Item {
             if (placementScreen.playerReady
             && placementScreen.opponentReady) {
 
-                waitingPopup.visible = true
-
                 // Небольшая задержка перед переходом
                 transitionTimer.start()
             }
@@ -613,8 +587,6 @@ Item {
         repeat: false
 
         onTriggered: {
-            waitingPopup.visible = false
-
             placementScreen.stackView.push(
                 Qt.resolvedUrl("GameScreen.qml")
             )
