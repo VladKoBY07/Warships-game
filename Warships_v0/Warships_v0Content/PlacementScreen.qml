@@ -99,7 +99,7 @@ Item {
             anchors.bottom: board.top
             z: 1
             color: "#162433"
-            opacity: 0.7
+            opacity: 0.8
         }
 
         Rectangle {
@@ -110,7 +110,7 @@ Item {
             anchors.bottom: parent.bottom
             z: 1
             color: "#162433"
-            opacity: 0.7
+            opacity: 0.8
         }
 
         Rectangle {
@@ -121,7 +121,7 @@ Item {
             anchors.bottom: board.bottom
             z: 1
             color: "#162433"
-            opacity: 0.7
+            opacity: 0.8
         }
 
         Rectangle {
@@ -132,7 +132,7 @@ Item {
             anchors.bottom: board.bottom
             z: 1
             color: "#162433"
-            opacity: 0.7
+            opacity: 0.8
         }
 
         Rectangle {
@@ -140,7 +140,8 @@ Item {
             anchors.centerIn: parent
             width: 10 * 50
             height: 10 * 50
-            color: "transparent"
+            color: "#162433"
+            opacity: 0.3
             border.color: "#BDBDBD"
             border.width: 2
             z: 2
@@ -527,8 +528,8 @@ Item {
     // ===== Текстовая плашка — используется и при входе на экран
     Rectangle {
         id: introBox
-        width: 350
-        height: width / 2.1
+        width: 500
+        height: 200
         color: "transparent"
         opacity: 0.0
         anchors.horizontalCenter: parent.horizontalCenter
@@ -545,7 +546,7 @@ Item {
 
         Text {
             anchors.centerIn: parent
-            topPadding: 67
+            topPadding: 75
             text: "Подготовка к бою"
             font.pixelSize: 30
             font.bold: true
@@ -571,7 +572,7 @@ Item {
         NumberAnimation {
             target: introBox
             property: "y"
-            to: 30
+            to: 10
             duration: 500
             easing.type: Easing.InOutQuad
         }
@@ -583,7 +584,7 @@ Item {
 
         ScriptAction { script: gameContent.enabled = true }
         ScriptAction { script: introBox.anchors.top = placementScreen.top }
-        ScriptAction { script: introBox.anchors.topMargin = 30 }
+        ScriptAction { script: introBox.anchors.topMargin = 10 }
     }
 
     Connections {
