@@ -17,10 +17,12 @@ qt6_add_qml_module(Warships_v0Content
         "ShipItem.qml"
         "StartMenu.qml"
     RESOURCES
+        "images/Avatar.png"
         "images/ButtonBG.png"
         "images/ButtonBG_hover.png"
         "images/ButtonBG_not_pressed.png"
         "images/ButtonBG_pressed.png"
+        "images/DeleteIcon.png"
         "images/DockTable.png"
         "images/Logo_BG.png"
         "images/MainMenu.png"

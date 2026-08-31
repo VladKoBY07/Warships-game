@@ -37,6 +37,9 @@ Item {
             gameContent.enabled = false
             blurEffect.amount = 0.0
             dimOverlay.opacity = 0.0
+
+            introText.text = "Подготовка к бою"
+            introText.color = "#C1C9CC"
         }
     }
 
@@ -140,8 +143,8 @@ Item {
             height: 10 * 50
             color: "#162433"
             opacity: 0.3
-            border.color: "#BDBDBD"
-            border.width: 2
+            border.color: "#C1C9CC"
+            border.width: 3
             z: 2
 
             property int cols: 10
@@ -194,7 +197,7 @@ Item {
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
-                anchors.topMargin: 8
+                anchors.topMargin: 12
                 text: "Док"
                 font.bold: true
                 color: "#616161"
@@ -292,34 +295,6 @@ Item {
             }
         }
 
-        Text {
-            visible: placementScreen.currentGamemode
-                     === GameController.Local
-
-            anchors.top: readyButton.bottom
-            anchors.topMargin: 12
-            anchors.horizontalCenter: board.horizontalCenter
-            z: 10
-
-            text: {
-                if (placementScreen.currentGamemode
-                    !== GameController.Local) {
-                    return ""
-                }
-
-                return placementScreen.opponentReady
-                       ? "Соперник готов"
-                       : "Соперник не готов"
-            }
-
-            color: placementScreen.opponentReady
-                   ? "#2E7D32"
-                   : "#F57C00"
-
-            font.bold: true
-            font.pixelSize: 18
-        }
-
         Connections {
             target: readyButton
 
@@ -368,6 +343,10 @@ Item {
                     shipRepeater.enabled = true
                     clearButton.enabled = true
 
+                    introText.text = "Подготовка к бою"
+                    introText.color = "#C1C9CC"
+                    introText.opacity = 1.0
+
                     return
                 }
 
@@ -386,19 +365,121 @@ Item {
                         Qt.resolvedUrl("GameScreen.qml")
                     )
                 } else {
-                    // Ждём соперника
+                    introText.text = "Ожидаем соперника..."
+                    introText.color = "#F57C00"
+                    introText.opacity = 1.0
                 }
             }
         }
 
         Button {
             id: clearButton
-            text: "Очистить"
-            anchors.top: readyButton.bottom
-            anchors.topMargin: 12
-            anchors.horizontalCenter: board.horizontalCenter
+            anchors.top: board.top
+            anchors.left: board.right
+            width: 100
+            height: 100
             z: 10
+
+            Rectangle{
+                anchors.fill: parent
+                color: "#162433"
+                border.color: "#C1C9CC"
+                border.width: 2
+                z: 0
+            }
+
+            Image {
+                anchors.fill: parent
+                anchors.leftMargin: 15
+                anchors.rightMargin: 15
+                anchors.topMargin: 15
+                anchors.bottomMargin: 15
+                source: "images/DeleteIcon.png"
+                z: 1
+            }
         }
+
+        Rectangle {
+            visible: placementScreen.currentGamemode
+                    === GameController.Local
+
+            id: networkStatusWindow
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.top: board.top
+            width: 260
+            height: board.height
+            color: "transparent"
+            z: 3
+
+            Image {
+                anchors.fill: parent
+                source: "images/DockTable.png"
+                fillMode: Image.Stretch
+                z: 0
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 12
+                text: "Противник"
+                font.bold: true
+                color: "#616161"
+                z: 1
+            }
+
+            Image {
+                id: enemyAvatar
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 50
+                source: "images/Avatar.png"
+                width: 100
+                height: 100
+            }
+
+            Text {
+                id: enemyName
+                anchors.horizontalCenter: enemyAvatar.horizontalCenter
+                anchors.top: enemyAvatar.bottom
+                anchors.topMargin: 10
+                font.pixelSize: 18
+                color: "#C1C9CC"
+                text: {
+                    if (gameController.gamemode === GameController.Local)
+                        return networkManager.enemyName();
+
+                    return ""
+                }
+            }
+
+            Text {
+                id: enemyStatus
+                anchors.horizontalCenter: enemyName.horizontalCenter
+                anchors.top: enemyName.bottom
+                anchors.topMargin: 10
+                text: {
+                    if (placementScreen.currentGamemode
+                        !== GameController.Local) {
+                        return ""
+                    }
+
+                    return placementScreen.opponentReady
+                           ? "Готов"
+                           : "Не готов"
+                }
+
+                color: placementScreen.opponentReady
+                       ? "#2E7D32"
+                       : "#F57C00"
+
+                font.bold: true
+                font.pixelSize: 18
+            }
+        }
+
+
 
         Connections {
             target: clearButton
@@ -587,6 +668,10 @@ Item {
         repeat: false
 
         onTriggered: {
+            introText.text = "Подготовка к бою"
+            introText.color = "#C1C9CC"
+            introText.opacity = 1.0
+
             placementScreen.stackView.push(
                 Qt.resolvedUrl("GameScreen.qml")
             )
