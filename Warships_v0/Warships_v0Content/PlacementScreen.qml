@@ -399,6 +399,40 @@ Item {
             }
         }
 
+        Button {
+            id: randomButton
+            anchors.top: clearButton.bottom
+            anchors.left: board.right
+            width: 100
+            height: 100
+            z: 10
+
+            Rectangle{
+                anchors.fill: parent
+                color: "#162433"
+                border.color: "#C1C9CC"
+                border.width: 2
+                z: 0
+            }
+
+            Image {
+                anchors.fill: parent
+                anchors.leftMargin: 15
+                anchors.rightMargin: 15
+                anchors.topMargin: 15
+                anchors.bottomMargin: 15
+                source: "images/RandomIcon.png"
+                z: 1
+            }
+        }
+        Connections {
+            target: randomButton
+            function onClicked() {
+                placementScreen.placeShipsRandomly()
+            }
+        }
+
+
         Rectangle {
             visible: placementScreen.currentGamemode
                     === GameController.Local
@@ -675,6 +709,219 @@ Item {
             placementScreen.stackView.push(
                 Qt.resolvedUrl("GameScreen.qml")
             )
+        }
+    }
+
+    // ===== Функция случайной расстановки кораблей =====
+    function placeShipsRandomly() {
+
+        gameBoard.clearBoards()
+
+        var ships = []
+        for (var i = 0; i < shipDockLayout.count; ++i) {
+            ships.push(shipDockLayout.get(i).len)
+        }
+
+        var maxAttempts = 30
+        var success = false
+
+        for (var attempt = 0; attempt < maxAttempts; ++attempt) {
+            gameBoard.clearBoards()
+
+            var attemptOk = true
+
+            for (var s = 0; s < ships.length; ++s) {
+                var len = ships[s]
+
+                var placed = false
+                var tryCount = 0
+                var maxTries = 200
+
+                while (!placed && tryCount < maxTries) {
+                    ++tryCount
+
+                    // Случайная ориентация
+                    var horiz = Math.random() < 0.5
+
+                    // Допустимые диапазоны для левой верхней клетки
+                    var maxX = board.cols - (horiz ? len : 1)
+                    var maxY = board.rows - (horiz ? 1 : len)
+
+                    var gx = Math.floor(Math.random() * (maxX + 1))
+                    var gy = Math.floor(Math.random() * (maxY + 1))
+
+                    if (gameBoard.canPlaceShip(gx, gy, len, horiz)) {
+                        gameBoard.placeShip(gx, gy, len, horiz)
+                        placed = true
+                    }
+                }
+
+                if (!placed) {
+                    attemptOk = false
+                    break
+                }
+            }
+
+            if (attemptOk) {
+                success = true
+                break
+            }
+        }
+
+        if (!success) {
+            gameBoard.clearBoards()
+        }
+        syncShipsToBoard()
+    }
+
+    // ===== Синхронизация ShipItem с состоянием поля =====
+    function syncShipsToBoard() {
+
+        var foundShips = []
+
+        var visited = []
+        var xx, yy, k
+
+        for (yy = 0; yy < board.rows; ++yy) {
+            visited[yy] = []
+            for (xx = 0; xx < board.cols; ++xx) {
+                visited[yy][xx] = false
+            }
+        }
+
+        for (var y = 0; y < board.rows; ++y) {
+            for (var x = 0; x < board.cols; ++x) {
+                var status = gameBoard.myCellStatusAt(x, y)
+                if (status !== 1) // 1 == Ship
+                    continue
+
+                if (visited[y][x])
+                    continue
+
+                // Определяем ориентацию и длину корабля
+                var horiz = false
+                var len = 1
+
+                var hasRight = (x + 1 < board.cols &&
+                                gameBoard.myCellStatusAt(x + 1, y) === 1)
+
+                var hasBottom = (y + 1 < board.rows &&
+                                 gameBoard.myCellStatusAt(x, y + 1) === 1)
+
+                if (hasRight) {
+                    horiz = true
+                    len = 1
+                    xx = x + 1
+                    while (xx < board.cols &&
+                           gameBoard.myCellStatusAt(xx, y) === 1) {
+                        ++len
+                        ++xx
+                    }
+
+                    for (k = 0; k < len; ++k) {
+                        visited[y][x + k] = true
+                    }
+
+                    foundShips.push({
+                        len: len,
+                        x: x,
+                        y: y,
+                        horizontal: true
+                    })
+                } else if (hasBottom) {
+                    // Вертикальный корабль
+                    horiz = false
+                    len = 1
+                    yy = y + 1
+                    while (yy < board.rows &&
+                           gameBoard.myCellStatusAt(x, yy) === 1) {
+                        ++len
+                        ++yy
+                    }
+
+                    for (k = 0; k < len; ++k) {
+                        visited[y + k][x] = true
+                    }
+
+                    foundShips.push({
+                        len: len,
+                        x: x,
+                        y: y,
+                        horizontal: false
+                    })
+                } else {
+                    // Одиночный корабль (длина 1)
+                    visited[y][x] = true
+                    foundShips.push({
+                        len: 1,
+                        x: x,
+                        y: y,
+                        horizontal: true
+                    })
+                }
+            }
+        }
+
+        // Сортируем найденные корабли
+        foundShips.sort(function(a, b) {
+            if (b.len !== a.len)
+                return b.len - a.len
+            if (a.y !== b.y)
+                return a.y - b.y
+            return a.x - b.x
+        })
+
+        for (var i = 0; i < shipRepeater.count; ++i) {
+            var shipItem = shipRepeater.itemAt(i)
+            var expectedLen = shipDockLayout.get(i).len
+
+            var found = null
+            for (k = 0; k < foundShips.length; ++k) {
+                if (foundShips[k].len === expectedLen) {
+                    found = foundShips[k]
+                    foundShips.splice(k, 1)
+                    break
+                }
+            }
+
+            if (found) {
+                shipItem.suppressMoveAnim = true
+
+                shipItem.placed = true
+                shipItem.gridX = found.x
+                shipItem.gridY = found.y
+                shipItem.horizontal = found.horizontal
+
+                shipItem.width  = shipItem.horizontal
+                                    ? shipItem.shipLength * shipItem.cellSize
+                                    : shipItem.cellSize
+                shipItem.height = shipItem.horizontal
+                                    ? shipItem.cellSize
+                                    : shipItem.shipLength * shipItem.cellSize
+
+                shipItem.x = board.x + found.x * board.cellSize
+                shipItem.y = board.y + found.y * board.cellSize
+
+                shipItem.suppressMoveAnim = false
+            } else {
+                // Корабль не найден на поле — возвращаем в док
+                var homeSpot = shipDockLayout.get(i)
+
+                shipItem.suppressMoveAnim = true
+
+                shipItem.placed = false
+                shipItem.gridX = -1
+                shipItem.gridY = -1
+                shipItem.horizontal = true
+
+                shipItem.width  = shipItem.shipLength * shipItem.cellSize
+                shipItem.height = shipItem.cellSize
+
+                shipItem.x = placementScreen.dockAbsX + homeSpot.ox
+                shipItem.y = placementScreen.dockAbsY + homeSpot.oy
+
+                shipItem.suppressMoveAnim = false
+            }
         }
     }
 }
