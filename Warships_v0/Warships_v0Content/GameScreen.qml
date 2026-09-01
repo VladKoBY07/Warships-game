@@ -2,29 +2,54 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
 import Warships 1.0
+import QtMultimedia
 
 Rectangle {
     id: gameScreen
     anchors.fill: parent
-    color: "#ffffff"
+
+    Video{
+        id: gamescreenBG
+        anchors.fill: parent
+        source: "images/SeaAnimated.mp4"
+        playbackRate: 1
+        fillMode: VideoOutput.PreserveAspectCrop
+        loops: MediaPlayer.Infinite
+        z: 0
+
+        Image {
+            anchors.fill: parent
+            source: "images/Sea.jpg"
+            fillMode: Image.PreserveAspectCrop
+            visible: placementBG.playbackState !== MediaPlayer.PlayingState
+        }
+
+        Component.onCompleted: play()
+    }
 
     Item {
         id: gameContent
         anchors.fill: parent
         enabled: false
+        z: 5
 
         Rectangle {
             id: player1Box
-            width: 240
             height: 80
-            radius: 10
-            color: "#F5F5F5"
-            border.color: "#BDBDBD"
-            border.width: 1
+            width: height * 3.64
             anchors.left: parent.left
             anchors.leftMargin: 30
             anchors.top: parent.top
             anchors.topMargin: 30
+            color: "transparent"
+            z: 30
+
+            Image {
+                anchors.fill: parent
+                source: "images/ButtonBG.png"
+                fillMode: Image.Stretch
+                z: 0
+            }
 
             Text {
                 anchors.centerIn: parent
@@ -36,22 +61,28 @@ Rectangle {
                 }
                 font.pixelSize: 28
                 font.bold: true
-                color: "#000000"
+                color: "#C1C9CC"
+                z: 10
             }
         }
 
         Rectangle {
             id: player2Box
-            width: 240
             height: 80
-            radius: 10
-            color: "#F5F5F5"
-            border.color: "#BDBDBD"
-            border.width: 1
+            width: height * 3.64
             anchors.right: parent.right
             anchors.rightMargin: 30
             anchors.top: parent.top
             anchors.topMargin: 30
+            color: "transparent"
+            z: 30
+
+            Image {
+                anchors.fill: parent
+                source: "images/ButtonBG.png"
+                fillMode: Image.Stretch
+                z: 0
+            }
 
             Text {
                 anchors.centerIn: parent
@@ -63,13 +94,15 @@ Rectangle {
                 }
                 font.pixelSize: 28
                 font.bold: true
-                color: "#000000"
+                color: "#C1C9CC"
+                z: 10
             }
         }
 
         Row {
             spacing: 200
             anchors.centerIn: parent
+            z: 20
 
             // ================= ВАШЕ ПОЛЕ (СЛЕВА) =================
             Column {
@@ -79,21 +112,22 @@ Rectangle {
                     text: "ВАШЕ ПОЛЕ"
                     font.bold: true
                     font.pixelSize: 16
-                    color: "#616161"
+                    color: "#C1C9CC"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
                 Rectangle {
                     id: myBoard
-                    width: 10 * 40
-                    height: 10 * 40
-                    color: "#FFFFFF"
-                    border.color: "#BDBDBD"
-                    border.width: 1
+                    width: 10 * 50
+                    height: 10 * 50
+                    color: "#162433"
+                    opacity: 0.3
+                    border.color: "#C1C9CC"
+                    border.width: 3
 
                     property int cols: 10
                     property int rows: 10
-                    property int cellSize: 40
+                    property int cellSize: 50
 
                     // фон-сетка
                     Repeater {
@@ -103,7 +137,7 @@ Rectangle {
                             height: myBoard.cellSize
                             y: index * myBoard.cellSize
                             color: "transparent"
-                            border.color: "#EEEEEE"
+                            border.color: "#C1C9CC"
                             border.width: 1
                         }
                     }
@@ -115,7 +149,7 @@ Rectangle {
                             height: myBoard.height
                             x: index * myBoard.cellSize
                             color: "transparent"
-                            border.color: "#EEEEEE"
+                            border.color: "#C1C9CC"
                             border.width: 1
                         }
                     }
@@ -146,7 +180,6 @@ Rectangle {
 
                                 return "transparent"
                             }
-
                             border.color: "transparent";
                         }
                     }
@@ -161,21 +194,22 @@ Rectangle {
                     text: "ПОЛЕ ПРОТИВНИКА"
                     font.bold: true
                     font.pixelSize: 16
-                    color: "#616161"
+                    color: "#C1C9CC"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
                 Rectangle {
                     id: enemyBoard
-                    width: 10 * 40
-                    height: 10 * 40
-                    color: "#FFFFFF"
-                    border.color: "#BDBDBD"
-                    border.width: 1
+                    width: 10 * 50
+                    height: 10 * 50
+                    color: "#162433"
+                    opacity: 0.3
+                    border.color: "#C1C9CC"
+                    border.width: 3
 
                     property int cols: 10
                     property int rows: 10
-                    property int cellSize: 40
+                    property int cellSize: 50
 
                     // фон-сетка
                     Repeater {
@@ -185,7 +219,7 @@ Rectangle {
                             height: enemyBoard.cellSize
                             y: index * enemyBoard.cellSize
                             color: "transparent"
-                            border.color: "#EEEEEE"
+                            border.color: "#C1C9CC"
                             border.width: 1
                         }
                     }
@@ -197,7 +231,7 @@ Rectangle {
                             height: enemyBoard.height
                             x: index * enemyBoard.cellSize
                             color: "transparent"
-                            border.color: "#EEEEEE"
+                            border.color: "#C1C9CC"
                             border.width: 1
                         }
                     }
@@ -255,6 +289,7 @@ Rectangle {
         blurEnabled: true
         blurMax: 32
         autoPaddingEnabled: true
+        z: 50
 
         property real amount: 0.0
         blur: amount
@@ -266,67 +301,37 @@ Rectangle {
         anchors.fill: parent
         color: "#000000"
         opacity: 0.0
+        z: 50
     }
 
     //Текстовая плашка "ИГРА НАЧАЛАСЬ!"
 
     Rectangle {
         id: introBox
-        width: 380
-        height: 90
-        radius: 10
-        color: "#F5F5F5"
-        border.color: "#BDBDBD"
-        border.width: 1
+        width: 500
+        height: 200
+        color: "transparent"
         opacity: 0.0
         anchors.horizontalCenter: parent.horizontalCenter
         y: gameScreen.height / 2 - height / 2
+        z: 100
+
+        Image {
+            anchors.fill: parent
+            source: "images/Logo_BG.png"
+            fillMode: Image.Stretch
+            z: 0
+        }
 
         Text {
+            id: introText
             anchors.centerIn: parent
+            topPadding: 75
             text: "Игра началась!"
             font.pixelSize: 30
             font.bold: true
-            color: "#000000"
-        }
-    }
-
-    // Плашка индикатора хода
-    Rectangle {
-        id: turnPlate
-        width: 220
-        height: 60
-        radius: 10
-        color: "#F5F5F5"
-        border.color: "#BDBDBD"
-        border.width: 1
-        opacity: 0.0
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: introBox.bottom
-        anchors.topMargin: 24
-
-        Text {
-            anchors.centerIn: parent
-
-            text: {
-                if (gameController.turn === GameController.MyTurn)
-                    return "Ваш ход"
-
-                if (gameController.turn === GameController.EnemyTurn)
-                    return "Ход противника"
-
-                if (gameController.turn === GameController.GameOver_PlayerWon)
-                    return "Победа!"
-
-                if (gameController.turn === GameController.GameOver_PlayerLost)
-                    return "Поражение"
-
-                return "Неизвестное состояние"
-            }
-
-            font.pixelSize: 20
-            font.bold: true
-            color: "#000000"
+            color: "#C1C9CC"
+            z: 1
         }
     }
 
@@ -347,7 +352,7 @@ Rectangle {
         NumberAnimation {
             target: introBox
             property: "y"
-            to: 40
+            to: 10
             duration: 500
             easing.type: Easing.InOutQuad
         }
@@ -359,11 +364,47 @@ Rectangle {
 
         ScriptAction { script: gameContent.enabled = true }
         ScriptAction { script: introBox.anchors.top = gameScreen.top }
-        ScriptAction { script: introBox.anchors.topMargin = 40 }
+        ScriptAction { script: introBox.anchors.topMargin = 10 }
 
-        NumberAnimation { target: turnPlate; property: "opacity"; from: 0.0; to: 1.0; duration: 300 }
+        PauseAnimation { duration: 250 }
 
-        PauseAnimation { duration: 3000 }
-        NumberAnimation { target: introBox; property: "opacity"; from: 1.0; to: 0.0; duration: 500 }
+        NumberAnimation { target: introText; property: "opacity"; from: 1.0; to: 0.0; duration: 250 }
+
+        ScriptAction {
+            script: {
+                var turnText = "Неизвестное состояние"
+
+                if (gameController.turn === GameController.MyTurn)
+                    turnText = "Ваш ход"
+                else if (gameController.turn === GameController.EnemyTurn)
+                    turnText = "Ход противника"
+                else if (gameController.turn === GameController.GameOver_PlayerWon)
+                    turnText = "Победа!"
+                else if (gameController.turn === GameController.GameOver_PlayerLost)
+                    turnText = "Поражение"
+
+                introText.text = turnText
+            }
+        }
+
+        NumberAnimation { target: introText; property: "opacity"; from: 0.0; to: 1.0; duration: 500 }
+    }
+
+    Connections {
+        target: gameController
+        function onTurnChanged() {
+            var turnText = "Неизвестное состояние"
+
+            if (gameController.turn === GameController.MyTurn)
+                turnText = "Ваш ход"
+            else if (gameController.turn === GameController.EnemyTurn)
+                turnText = "Ход противника"
+            else if (gameController.turn === GameController.GameOver_PlayerWon)
+                turnText = "Победа!"
+            else if (gameController.turn === GameController.GameOver_PlayerLost)
+                turnText = "Поражение"
+
+            introText.text = turnText
+        }
     }
 }
