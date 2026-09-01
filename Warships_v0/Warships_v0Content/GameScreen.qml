@@ -24,7 +24,7 @@ Rectangle {
             visible: gamescreenBG.playbackState !== MediaPlayer.PlayingState
         }
 
-        Component.onCompleted: play()
+        Component.onCompleted: play()    
     }
 
     Item {
@@ -183,30 +183,19 @@ Rectangle {
             }
         }
 
-        Row {
-            spacing: 200
-            anchors.centerIn: parent
-            z: 20
-
             // ================= ВАШЕ ПОЛЕ (СЛЕВА) =================
-            Column {
-                spacing: 8
-
-                Text {
-                    text: "ВАШЕ ПОЛЕ"
-                    font.bold: true
-                    font.pixelSize: 16
-                    color: "#C1C9CC"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
                 Rectangle {
                     id: myBoard
                     width: 10 * 50
                     height: 10 * 50
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.horizontalCenterOffset: -300
                     color: "transparent"
                     border.color: "#C1C9CC"
                     border.width: 3
+                    z: 20
 
                     property int cols: 10
                     property int rows: 10
@@ -301,27 +290,31 @@ Rectangle {
                         }
                     }
                 }
-            }
-
-            // ================= ПОЛЕ ПРОТИВНИКА (СПРАВА) =================
-            Column {
-                spacing: 8
 
                 Text {
-                    text: "ПОЛЕ ПРОТИВНИКА"
+                    text: "ВАШЕ ПОЛЕ"
                     font.bold: true
                     font.pixelSize: 16
                     color: "#C1C9CC"
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.horizontalCenter: myBoard.horizontalCenter
+                    anchors.bottom: myBoard.top
+                    anchors.bottomMargin: 10
+                    z: 20
                 }
 
+            // ================= ПОЛЕ ПРОТИВНИКА (СПРАВА) =================
                 Rectangle {
                     id: enemyBoard
                     width: 10 * 50
                     height: 10 * 50
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.horizontalCenterOffset: 300
                     color: "transparent"
                     border.color: "#C1C9CC"
                     border.width: 3
+                    z: 20
 
                     property int cols: 10
                     property int rows: 10
@@ -403,8 +396,64 @@ Rectangle {
                         }
                     }
                 }
-            }
-        }
+
+                Text {
+                    text: "ПОЛЕ ПРОТИВНИКА"
+                    font.bold: true
+                    font.pixelSize: 16
+                    color: "#C1C9CC"
+                    anchors.horizontalCenter: enemyBoard.horizontalCenter
+                    anchors.bottom: enemyBoard.top
+                    anchors.bottomMargin: 10
+                    z: 20
+                }
+
+                // Затемнение фона (5 прямоугольников)
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: myBoard.top
+                    z: 3
+                    color: "#162433"
+                    opacity: 0.8
+                }
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: myBoard.bottom
+                    anchors.bottom: parent.bottom
+                    z: 3
+                    color: "#162433"
+                    opacity: 0.8
+                }
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: myBoard.left
+                    anchors.top: myBoard.top
+                    anchors.bottom: myBoard.bottom
+                    z: 3
+                    color: "#162433"
+                    opacity: 0.8
+                }
+                Rectangle {
+                    anchors.left: myBoard.right
+                    anchors.right: enemyBoard.left
+                    anchors.top: myBoard.top
+                    anchors.bottom: myBoard.bottom
+                    z: 3
+                    color: "#162433"
+                    opacity: 0.8
+                }
+                Rectangle {
+                    anchors.left: enemyBoard.right
+                    anchors.right: parent.right
+                    anchors.top: enemyBoard.top
+                    anchors.bottom: enemyBoard.bottom
+                    z: 3
+                    color: "#162433"
+                    opacity: 0.8
+                }
     }
 
     // Блюр
