@@ -33,8 +33,8 @@ Item {
         anchors.centerIn: parent
         source: "images/ships/ship" + shipLength + ".png"
 
-        width: shipLength * cellSize
-        height: cellSize
+        width: shipLength * cellSize - 5
+        height: cellSize - 5
 
         rotation: root.horizontal ? 0 : 90
     }

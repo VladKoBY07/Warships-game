@@ -21,7 +21,7 @@ Rectangle {
             anchors.fill: parent
             source: "images/Sea.jpg"
             fillMode: Image.PreserveAspectCrop
-            visible: placementBG.playbackState !== MediaPlayer.PlayingState
+            visible: gamescreenBG.playbackState !== MediaPlayer.PlayingState
         }
 
         Component.onCompleted: play()
@@ -32,6 +32,90 @@ Rectangle {
         anchors.fill: parent
         enabled: false
         z: 5
+
+        function findShipsOnBoard() {
+            var ships = []
+            var visited = []
+            var xx, yy, k
+
+            for (yy = 0; yy < myBoard.rows; ++yy) {
+                visited[yy] = []
+                for (xx = 0; xx < myBoard.cols; ++xx) {
+                    visited[yy][xx] = false
+                }
+            }
+
+            for (var y = 0; y < myBoard.rows; ++y) {
+                for (var x = 0; x < myBoard.cols; ++x) {
+                    var status = gameBoard.myCellStatusAt(x, y)
+                    if (status !== 1)
+                        continue
+
+                    if (visited[y][x])
+                        continue
+
+                    var horiz = false
+                    var len = 1
+
+                    var hasRight = (x + 1 < myBoard.cols &&
+                        gameBoard.myCellStatusAt(x + 1, y) === 1)
+                    var hasBottom = (y + 1 < myBoard.rows &&
+                        gameBoard.myCellStatusAt(x, y + 1) === 1)
+
+                    if (hasRight) {
+                        horiz = true
+                        len = 1
+                        xx = x + 1
+                        while (xx < myBoard.cols &&
+                        gameBoard.myCellStatusAt(xx, y) === 1) {
+                            ++len
+                            ++xx
+                        }
+
+                        for (k = 0; k < len; ++k) {
+                            visited[y][x + k] = true
+                        }
+
+                        ships.push({
+                            len: len,
+                            x: x,
+                            y: y,
+                            horizontal: true
+                        })
+                        } else if (hasBottom) {
+                            horiz = false
+                            len = 1
+                            yy = y + 1
+                            while (yy < myBoard.rows &&
+                            gameBoard.myCellStatusAt(x, yy) === 1) {
+                                ++len
+                                ++yy
+                            }
+
+                        for (k = 0; k < len; ++k) {
+                            visited[y + k][x] = true
+                        }
+
+                        ships.push({
+                            len: len,
+                            x: x,
+                            y: y,
+                            horizontal: false
+                        })
+                        } else {
+                            visited[y][x] = true
+                            ships.push({
+                                len: 1,
+                                x: x,
+                                y: y,
+                                horizontal: true
+                            })
+                        }
+                    }
+                }
+
+                return ships
+        }
 
         Rectangle {
             id: player1Box
@@ -120,14 +204,20 @@ Rectangle {
                     id: myBoard
                     width: 10 * 50
                     height: 10 * 50
-                    color: "#162433"
-                    opacity: 0.3
+                    color: "transparent"
                     border.color: "#C1C9CC"
                     border.width: 3
 
                     property int cols: 10
                     property int rows: 10
                     property int cellSize: 50
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#162433"
+                        opacity: 0.3
+                        z: 0
+                    }
 
                     // фон-сетка
                     Repeater {
@@ -139,6 +229,7 @@ Rectangle {
                             color: "transparent"
                             border.color: "#C1C9CC"
                             border.width: 1
+                            z: 10
                         }
                     }
 
@@ -151,10 +242,37 @@ Rectangle {
                             color: "transparent"
                             border.color: "#C1C9CC"
                             border.width: 1
+                            z: 10
                         }
                     }
 
-                    // логические клетки: показываем корабли игрока
+                    Repeater {
+                        id: myShipsRepeater
+                        model: gameContent.findShipsOnBoard()
+
+                        delegate: Item {
+                            width: modelData.horizontal
+                                ? modelData.len * myBoard.cellSize
+                                : myBoard.cellSize
+                            height: modelData.horizontal
+                                ? myBoard.cellSize
+                                : modelData.len * myBoard.cellSize
+                            x: modelData.x * myBoard.cellSize
+                            y: modelData.y * myBoard.cellSize
+                            z: 15
+
+                            Image {
+                                anchors.centerIn: parent
+                                source: "images/ships/ship" + modelData.len + ".png"
+
+                                width: modelData.len * myBoard.cellSize - 5
+                                height: myBoard.cellSize - 5
+
+                                rotation: modelData.horizontal ? 0 : 90
+                            }
+                        }
+                    }
+
                     Repeater {
                         model: myBoard.rows * myBoard.cols
                         Rectangle {
@@ -162,6 +280,7 @@ Rectangle {
                             height: myBoard.cellSize
                             x: (index % myBoard.cols) * myBoard.cellSize
                             y: Math.floor(index / myBoard.cols) * myBoard.cellSize
+                            z: 25
 
                             // отрисовка статусов клеток
                             color: {
@@ -172,8 +291,6 @@ Rectangle {
                                 var st = gameBoard.myCellStatusAt(col, row)
 
                                 // 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed
-                                if (st === 0) return "transparent"
-                                if (st === 1) return "#90CAF9"
                                 if (st === 2) return "#B0BEC5"
                                 if (st === 3) return "#FF7043"
                                 if (st === 4) return "#D32F2F"
@@ -202,14 +319,20 @@ Rectangle {
                     id: enemyBoard
                     width: 10 * 50
                     height: 10 * 50
-                    color: "#162433"
-                    opacity: 0.3
+                    color: "transparent"
                     border.color: "#C1C9CC"
                     border.width: 3
 
                     property int cols: 10
                     property int rows: 10
                     property int cellSize: 50
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#162433"
+                        opacity: 0.3
+                        z: 0
+                    }
 
                     // фон-сетка
                     Repeater {
@@ -221,6 +344,7 @@ Rectangle {
                             color: "transparent"
                             border.color: "#C1C9CC"
                             border.width: 1
+                            z: 10
                         }
                     }
 
@@ -233,6 +357,7 @@ Rectangle {
                             color: "transparent"
                             border.color: "#C1C9CC"
                             border.width: 1
+                            z: 10
                         }
                     }
 
@@ -245,6 +370,7 @@ Rectangle {
                             height: enemyBoard.cellSize
                             x: (index % enemyBoard.cols) * enemyBoard.cellSize
                             y: Math.floor(index / enemyBoard.cols) * enemyBoard.cellSize
+                            z: 15
 
                             // отрисовка состояния вражеских клеток
                             color: {
@@ -303,8 +429,6 @@ Rectangle {
         opacity: 0.0
         z: 50
     }
-
-    //Текстовая плашка "ИГРА НАЧАЛАСЬ!"
 
     Rectangle {
         id: introBox
