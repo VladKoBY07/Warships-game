@@ -33,6 +33,61 @@ Rectangle {
         enabled: false
         z: 5
 
+        // анимация взрыва (компонент)
+        Component {
+            id: explosionComponent
+
+            Image {
+                id: explosionImg
+                source: "images/ExplosionList.png"
+                z: 30
+
+                property int cellSize: 50
+                property int frameIndex: 0
+
+                property int frameSize: 256 // в исходном файле
+
+                width: cellSize
+                height: cellSize
+
+                // вырезание кадра
+                sourceClipRect: Qt.rect(
+                    (frameIndex % 5) * frameSize,
+                    Math.floor(frameIndex / 5) * frameSize,
+                    frameSize,
+                    frameSize
+                )
+
+                // Переход между кадрами
+                NumberAnimation {
+                    target: explosionImg
+                    property: "frameIndex"
+                    from: 0
+                    to: 24
+                    duration: 500
+                    running: true
+                    loops: 1
+                }
+
+                // уничтожение после анимации
+                Timer {
+                    interval: 500
+                    running: true
+                    repeat: false
+                    onTriggered: explosionImg.destroy()
+                }
+            }
+        }
+
+        // Функция запуска взрыва
+        function playExplosion(board, x, y){
+            var explosion = explosionComponent.createObject(board)
+            explosion.x = x * board.cellSize
+            explosion.y = y * board.cellSize
+            explosion.cellSize = board.cellSize
+        }
+
+        // Функция поиска кораблей для отрисовки
         function findShipsOnBoard() {
             var ships = []
             var visited = []
@@ -264,12 +319,32 @@ Rectangle {
 
                     Repeater {
                         model: myBoard.rows * myBoard.cols
-                        Rectangle {
+                        delegate: Rectangle {
                             width: myBoard.cellSize
                             height: myBoard.cellSize
                             x: (index % myBoard.cols) * myBoard.cellSize
                             y: Math.floor(index / myBoard.cols) * myBoard.cellSize
                             z: 25
+
+                            property int lastStatus: {
+                                var col = index % myBoard.cols
+                                var row = Math.floor(index / myBoard.cols)
+                                return gameBoard.myCellStatusAt(col, row)
+                            }
+
+                            Connections {
+                                target: gameBoard
+                                function onBoardChanged() {
+                                    var col = index % myBoard.cols
+                                    var row = Math.floor(index / myBoard.cols)
+                                    var st = gameBoard.myCellStatusAt(col, row)
+
+                                    if(lastStatus === 1 && (st === 3 || st === 4)){
+                                        gameContent.playExplosion(myBoard, col, row)
+                                    }
+                                    lastStatus = st
+                                }
+                            }
 
                             // отрисовка статусов клеток
                             color: {
@@ -357,13 +432,34 @@ Rectangle {
                     // клетки для стрельбы по врагу
                     Repeater {
                         model: enemyBoard.rows * enemyBoard.cols
-                        Rectangle {
+                        delegate: Rectangle {
                             id: enemyCell
                             width: enemyBoard.cellSize
                             height: enemyBoard.cellSize
                             x: (index % enemyBoard.cols) * enemyBoard.cellSize
                             y: Math.floor(index / enemyBoard.cols) * enemyBoard.cellSize
                             z: 15
+
+                            property int lastStatus: {
+                                var col = index % enemyBoard.cols
+                                var row = Math.floor(index / enemyBoard.cols)
+                                return gameBoard.enemyCellStatusAt(col, row)
+                            }
+
+                            Connections {
+                                target: gameBoard
+                                function onBoardChanged() {
+                                    var col = index % enemyBoard.cols
+                                    var row = Math.floor(index / enemyBoard.cols)
+                                    var st = gameBoard.enemyCellStatusAt(col, row)
+
+                                    if (lastStatus === 0 && (st === 3 || st === 4)) {
+                                        gameContent.playExplosion(enemyBoard, col, row)
+                                    }
+
+                                    lastStatus = st
+                                }
+                            }
 
                             // отрисовка состояния вражеских клеток
                             color: {

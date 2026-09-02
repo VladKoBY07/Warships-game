@@ -24,6 +24,7 @@ qt6_add_qml_module(Warships_v0Content
         "images/ButtonBG_pressed.png"
         "images/DeleteIcon.png"
         "images/DockTable.png"
+        "images/ExplosionList.png"
         "images/Logo_BG.png"
         "images/MainMenu.png"
         "images/MenuAnimated.mp4"
