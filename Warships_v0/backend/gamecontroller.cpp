@@ -146,28 +146,10 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
         m_gameboard->registerEnemyAnswer(x, y, result);
         switch (result) {
         case static_cast<int>(GameBoard::cellStatus::Shot):{ // Miss
-            int attack_result = static_cast<int>(GameBoard::cellStatus::Damaged);
-            int shot_status = static_cast<int>(GameBoard::cellStatus::Shot);
-            int kill_status = static_cast<int>(GameBoard::cellStatus::Killed);
-            while(attack_result != shot_status) // пока ии не промажет или победит стреляет
-            {
-                setTurn(Turn::EnemyTurn);
-                int attackX = 0, attackY = 0;
-                m_ai->calculateShoot(attackX, attackY);
-                attack_result = m_gameboard->receiveAttack(attackX, attackY);
-                m_ai->aiBoard.registerEnemyAnswer(attackX, attackY, attack_result);
-
-                if(attack_result == kill_status){
-                    alive_ships -= 1;
-                    if(alive_ships == 0){
-                        setTurn(Turn::GameOver_PlayerLost);
-                        break;
-                    }
-                }
-            }
-            if (m_turn != Turn::GameOver_PlayerLost) {
-                setTurn(Turn::MyTurn);
-            }
+            setTurn(Turn::EnemyTurn);
+            QTimer::singleShot(800, this, [this]() {
+                continueEnemyTurn();
+            });
             break;
         }
 
@@ -192,6 +174,38 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
         break;
     }
 }
+}
+
+void GameController::continueEnemyTurn()
+{
+    int shot_status = static_cast<int>(GameBoard::cellStatus::Shot);
+    int kill_status = static_cast<int>(GameBoard::cellStatus::Killed);
+
+    setTurn(Turn::EnemyTurn);
+    int attackX = 0, attackY = 0;
+    m_ai->calculateShoot(attackX, attackY);
+
+    m_enemyAttackResult = m_gameboard->receiveAttack(attackX, attackY);
+    m_ai->aiBoard.registerEnemyAnswer(attackX, attackY, m_enemyAttackResult);
+
+    if(m_enemyAttackResult == kill_status){
+        alive_ships -= 1;
+        if(alive_ships == 0){
+            setTurn(Turn::GameOver_PlayerLost);
+            return;
+        }
+    }
+
+    if (m_enemyAttackResult != shot_status) {
+        // Ещё один выстрел с задержкой
+        QTimer::singleShot(800, this, [this]() {
+            continueEnemyTurn();
+        });
+    } else {
+        if (m_turn != Turn::GameOver_PlayerLost) {
+            setTurn(Turn::MyTurn);
+        }
+    }
 }
 
 void GameController::sendNetworkShot(int x, int y){

@@ -481,6 +481,8 @@ Rectangle {
 
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: gameController.turn === GameController.MyTurn
+                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                                 onClicked: {
                                     console.log("Enemy cell clicked")
                                     var cellX = index % enemyBoard.cols

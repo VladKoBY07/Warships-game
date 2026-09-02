@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
+#include <QTimer>
 #include "backend/gameboard.h"
 #include "backend/ai_player.h"
 
@@ -90,6 +91,9 @@ private:
     Gamemodes m_gamemode = Gamemodes::PvAI;
 
     bool m_opponentReady = false;
+
+    void continueEnemyTurn();
+    int m_enemyAttackResult = 0;
 };
 
 #endif // GAMECONTROLLER_H
