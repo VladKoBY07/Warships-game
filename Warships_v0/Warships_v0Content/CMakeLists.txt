@@ -31,6 +31,7 @@ qt6_add_qml_module(Warships_v0Content
         "images/RandomIcon.png"
         "images/Sea.jpg"
         "images/SeaAnimated.mp4"
+        "images/Trash.png"
         "images/ships/ship1.png"
         "images/ships/ship1_part0.png"
         "images/ships/ship2.png"

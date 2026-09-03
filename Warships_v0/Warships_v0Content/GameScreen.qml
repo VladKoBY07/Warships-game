@@ -306,7 +306,7 @@ Rectangle {
 
                                 property string shipSource: ""
                                 property bool isHorizontal: true
-                                property real targetOpacity: 1.0  // <-- Добавили
+                                property real targetOpacity: 1.0
 
                                 visible: {
                                     var col = index % myBoard.cols
@@ -348,7 +348,6 @@ Rectangle {
 
                                 rotation: isHorizontal ? 0 : 90
 
-                                // Обновляем targetOpacity при изменении доски
                                 Connections {
                                     target: gameBoard
                                     function onBoardChanged() {
@@ -365,7 +364,61 @@ Rectangle {
                                 Behavior on opacity { NumberAnimation { duration: 50 } }
                             }
 
-                            //Image картинка обломков
+                            Image {
+                                id: wreckImage
+                                anchors.centerIn: parent
+                                z: 16
+                                width: myBoard.cellSize * 0.8
+                                height: myBoard.cellSize * 0.8
+
+                                source: "images/Trash.png"
+
+                                property real targetOpacity: 0.0
+
+                                Connections {
+                                    target: gameBoard
+                                    function onBoardChanged() {
+                                        var col = index % myBoard.cols
+                                        var row = Math.floor(index / myBoard.cols)
+                                        var st = gameBoard.myCellStatusAt(col, row)
+
+                                        wreckImage.targetOpacity = (st === 3 || st === 4) ? 1.0 : 0.0
+                                    }
+                                }
+
+                                opacity: targetOpacity
+                                visible: opacity > 0
+
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
+                            }
+
+                            Rectangle {
+                                id: missMarker
+                                anchors.centerIn: parent
+                                z: 16
+                                width: myBoard.cellSize * 0.3
+                                height: myBoard.cellSize * 0.3
+                                radius: width / 2
+                                color: "#C1C9CC"
+
+                                property real targetOpacity: 0.0
+
+                                Connections {
+                                    target: gameBoard
+                                    function onBoardChanged() {
+                                        var col = index % myBoard.cols
+                                        var row = Math.floor(index / myBoard.cols)
+                                        var st = gameBoard.myCellStatusAt(col, row)
+
+                                        missMarker.targetOpacity = (st === 2) ? 0.3 : 0.0
+                                    }
+                                }
+
+                                opacity: targetOpacity
+                                visible: opacity > 0
+
+                                Behavior on opacity { NumberAnimation { duration: 300 } }
+                            }
 
                             property int lastStatus: {
                                 var col = index % myBoard.cols
@@ -387,21 +440,7 @@ Rectangle {
                                 }
                             }
 
-                            // отрисовка статусов клеток
-                            color: {
-                                var revision = gameBoard.boardRevision
-
-                                var col = index % myBoard.cols
-                                var row = Math.floor(index / myBoard.cols)
-                                var st = gameBoard.myCellStatusAt(col, row)
-
-                                // 0 Clean, 1 Ship, 2 Shot, 3 Damaged, 4 Killed
-                                if (st === 2) return "#B0BEC5"
-                                if (st === 3) return "#FF7043"
-                                if (st === 4) return "#D32F2F"
-
-                                return "transparent"
-                            }
+                            color: "transparent"
                             border.color: "transparent";
                         }
                     }
@@ -502,22 +541,7 @@ Rectangle {
                                 }
                             }
 
-                            // отрисовка состояния вражеских клеток
-                            color: {
-                                var revision = gameBoard.boardRevision
-
-                                var col = index % enemyBoard.cols
-                                var row = Math.floor(index / enemyBoard.cols)
-                                var st = gameBoard.enemyCellStatusAt(col, row)
-
-                                // 0 Clean, 2 Shot, 3 Damaged, 4 Killed
-                                if (st === 0) return "transparent"
-                                if (st === 2) return "#B0BEC5"
-                                if (st === 3) return "#FF7043"
-                                if (st === 4) return "#D32F2F"
-
-                                return "transparent"
-                            }
+                            color: "transparent"
                             border.color: "transparent"
 
                             MouseArea {
@@ -531,6 +555,62 @@ Rectangle {
 
                                     gameController.playerShootsAt(cellX, cellY);
                                 }
+                            }
+
+                            Image {
+                                id: enemyWreckImage
+                                anchors.centerIn: parent
+                                z: 16
+                                width: enemyBoard.cellSize * 0.8
+                                height: enemyBoard.cellSize * 0.8
+
+                                source: "images/Trash.png"
+
+                                property real targetOpacity: 0.0
+
+                                Connections {
+                                    target: gameBoard
+                                    function onBoardChanged() {
+                                        var col = index % enemyBoard.cols
+                                        var row = Math.floor(index / enemyBoard.cols)
+                                        var st = gameBoard.enemyCellStatusAt(col, row)
+
+                                        enemyWreckImage.targetOpacity = (st === 3 || st === 4) ? 1.0 : 0.0
+                                    }
+                                }
+
+                                opacity: targetOpacity
+                                visible: opacity > 0
+
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
+                            }
+
+                            Rectangle {
+                                id: enemyMissMarker
+                                anchors.centerIn: parent
+                                z: 16
+                                width: enemyBoard.cellSize * 0.3
+                                height: enemyBoard.cellSize * 0.3
+                                radius: width / 2
+                                color: "#C1C9CC"
+
+                                property real targetOpacity: 0.0
+
+                                Connections {
+                                    target: gameBoard
+                                    function onBoardChanged() {
+                                        var col = index % enemyBoard.cols
+                                        var row = Math.floor(index / enemyBoard.cols)
+                                        var st = gameBoard.enemyCellStatusAt(col, row)
+
+                                        enemyMissMarker.targetOpacity = (st === 2) ? 0.3 : 0.0
+                                    }
+                                }
+
+                                opacity: targetOpacity
+                                visible: opacity > 0
+
+                                Behavior on opacity { NumberAnimation { duration: 300 } }
                             }
                         }
                     }
