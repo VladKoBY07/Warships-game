@@ -291,33 +291,6 @@ Rectangle {
                     }
 
                     Repeater {
-                        id: myShipsRepeater
-                        model: gameContent.findShipsOnBoard()
-
-                        delegate: Item {
-                            width: modelData.horizontal
-                                ? modelData.len * myBoard.cellSize
-                                : myBoard.cellSize
-                            height: modelData.horizontal
-                                ? myBoard.cellSize
-                                : modelData.len * myBoard.cellSize
-                            x: modelData.x * myBoard.cellSize
-                            y: modelData.y * myBoard.cellSize
-                            z: 15
-
-                            Image {
-                                anchors.centerIn: parent
-                                source: "images/ships/ship" + modelData.len + ".png"
-
-                                width: modelData.len * myBoard.cellSize - 5
-                                height: myBoard.cellSize - 5
-
-                                rotation: modelData.horizontal ? 0 : 90
-                            }
-                        }
-                    }
-
-                    Repeater {
                         model: myBoard.rows * myBoard.cols
                         delegate: Rectangle {
                             width: myBoard.cellSize
@@ -325,6 +298,74 @@ Rectangle {
                             x: (index % myBoard.cols) * myBoard.cellSize
                             y: Math.floor(index / myBoard.cols) * myBoard.cellSize
                             z: 25
+
+                            Image {
+                                id: shipPart
+                                anchors.centerIn: parent
+                                z: 15
+
+                                property string shipSource: ""
+                                property bool isHorizontal: true
+                                property real targetOpacity: 1.0  // <-- Добавили
+
+                                visible: {
+                                    var col = index % myBoard.cols
+                                    var row = Math.floor(index / myBoard.cols)
+                                    var st = gameBoard.myCellStatusAt(col, row)
+                                    return st === 1 || st === 3 || st === 4
+                                }
+
+                                Component.onCompleted: {
+                                    var col = index % myBoard.cols
+                                    var row = Math.floor(index / myBoard.cols)
+                                    var ships = gameContent.findShipsOnBoard()
+
+                                    for (var s = 0; s < ships.length; s++) {
+                                        var ship = ships[s]
+                                        var cellIndex = 0
+
+                                        if (ship.horizontal) {
+                                            if (row === ship.y && col >= ship.x && col < ship.x + ship.len) {
+                                                cellIndex = col - ship.x
+                                                shipSource = "images/ships/ship" + ship.len + "_part" + cellIndex + ".png"
+                                                isHorizontal = true
+                                                return
+                                            }
+                                        } else {
+                                            if (col === ship.x && row >= ship.y && row < ship.y + ship.len) {
+                                                cellIndex = row - ship.y
+                                                shipSource = "images/ships/ship" + ship.len + "_part" + cellIndex + ".png"
+                                                isHorizontal = false
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                source: shipSource
+                                width: myBoard.cellSize
+                                height: myBoard.cellSize
+
+                                rotation: isHorizontal ? 0 : 90
+
+                                // Обновляем targetOpacity при изменении доски
+                                Connections {
+                                    target: gameBoard
+                                    function onBoardChanged() {
+                                        var col = index % myBoard.cols
+                                        var row = Math.floor(index / myBoard.cols)
+                                        var st = gameBoard.myCellStatusAt(col, row)
+
+                                        shipPart.targetOpacity = (st === 3 || st === 4) ? 0.0 : 1.0
+                                    }
+                                }
+
+                                opacity: targetOpacity
+
+                                Behavior on opacity { NumberAnimation { duration: 50 } }
+                            }
+
+                            //Image картинка обломков
 
                             property int lastStatus: {
                                 var col = index % myBoard.cols

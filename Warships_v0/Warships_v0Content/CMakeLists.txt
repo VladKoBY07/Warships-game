@@ -32,9 +32,19 @@ qt6_add_qml_module(Warships_v0Content
         "images/Sea.jpg"
         "images/SeaAnimated.mp4"
         "images/ships/ship1.png"
+        "images/ships/ship1_part0.png"
         "images/ships/ship2.png"
+        "images/ships/ship2_part0.png"
+        "images/ships/ship2_part1.png"
         "images/ships/ship3.png"
+        "images/ships/ship3_part0.png"
+        "images/ships/ship3_part1.png"
+        "images/ships/ship3_part2.png"
         "images/ships/ship4.png"
+        "images/ships/ship4_part0.png"
+        "images/ships/ship4_part1.png"
+        "images/ships/ship4_part2.png"
+        "images/ships/ship4_part3.png"
 )
 
 
