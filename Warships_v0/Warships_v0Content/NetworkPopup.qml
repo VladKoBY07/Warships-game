@@ -1,18 +1,29 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 
 Popup {
     id: networkPopup
 
-    width: 420
-    height: 360
+    width: 385
+    height: 500
 
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape
 
     anchors.centerIn: Overlay.overlay
+
+    background: Image {
+        source: "images/LogoTable.png"
+        fillMode: Image.Stretch
+    }
+
+    Overlay.modal: Rectangle {
+        color: "#000000"
+        opacity: 0.7
+    }
 
     property string errorText: ""
     property bool showPlayers: false
@@ -24,7 +35,7 @@ Popup {
     Popup {
         id: statusPopup
 
-        width: 400
+        width: 380
         height: 240
 
         modal: true
@@ -47,6 +58,7 @@ Popup {
 
             Text {
                 text: "Подключение..."
+                color: "#C1C9CC"
                 font.bold: true
 
                 Layout.alignment: Qt.AlignHCenter
@@ -54,7 +66,7 @@ Popup {
 
             Text {
                 text: "Ожидание ответа от игрока"
-                color: "#757575"
+                color: "#C1C9CC"
 
                 Layout.alignment: Qt.AlignHCenter
             }
@@ -101,9 +113,11 @@ Popup {
 
             font.pixelSize: 20
             font.bold: true
+            color: "#C1C9CC"
 
             Layout.alignment: Qt.AlignHCenter
             Layout.bottomMargin: 5
+            Layout.topMargin: 70
         }
 
         StackLayout {
@@ -129,11 +143,13 @@ Popup {
                         id: nameInput
 
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: 250
-                        Layout.preferredHeight: 40
+                        Layout.preferredWidth: 280
+                        Layout.preferredHeight: 50
 
-                        placeholderText: "Введите имя"
-                        maximumLength: 20
+                        placeholderText: "Например: Джек Воробей"
+                        color: "#C1C9CC"
+                        font.pixelSize: 16
+                        maximumLength: 15
 
                         onTextChanged: {
                             networkPopup.errorText = ""
@@ -168,14 +184,18 @@ Popup {
 
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter
-                        spacing: 15
+                        spacing: 5
 
                         Button {
                             id: acceptNameButton
 
                             text: "Принять"
+                            font.pixelSize: 16
+                            leftPadding: acceptNameButton.pressed ? 8 : 4
+                            topPadding: acceptNameButton.pressed ? 8 : 4
 
-                            Layout.preferredWidth: 110
+                            implicitWidth: 140
+                            implicitHeight: implicitWidth / 3.4
 
                             enabled: nameInput.text.trim().length > 0
 
@@ -203,15 +223,35 @@ Popup {
 
                                 networkPopup.showPlayers = true
                             }
+
+                            background: Image {
+                                source: acceptNameButton.pressed? "images/ButtonBG_pressed.png" :
+                                        (acceptNameButton.hovered && acceptNameButton.enabled)? "images/ButtonBG_hover.png" :
+                                                            "images/ButtonBG_not_pressed.png"
+                                fillMode: Image.Stretch
+                                opacity: acceptNameButton.enabled? 1.0 : 0.5
+                            }
                         }
 
                         Button {
+                            id: rejectButton
                             text: "Отмена"
+                            font.pixelSize: 16
+                            leftPadding: rejectButton.pressed ? 8 : 4
+                            topPadding: rejectButton.pressed ? 8 : 4
 
-                            Layout.preferredWidth: 110
+                            implicitWidth: 140
+                            implicitHeight: implicitWidth / 3.4
 
                             onClicked: {
                                 networkPopup.close()
+                            }
+
+                            background: Image {
+                                source: rejectButton.pressed? "images/ButtonBG_pressed.png" :
+                                        rejectButton.hovered? "images/ButtonBG_hover.png" :
+                                                            "images/ButtonBG_not_pressed.png"
+                                fillMode: Image.Stretch
                             }
                         }
                     }
@@ -250,7 +290,7 @@ Popup {
 
                             color: ListView.isCurrentItem
                                    ? "#90CAF9"
-                                   : "#EEEEEE"
+                                   : "#C1C9CC"
 
                             border.width:
                                 ListView.isCurrentItem ? 2 : 1
@@ -258,7 +298,7 @@ Popup {
                             border.color:
                                 ListView.isCurrentItem
                                 ? "#1976D2"
-                                : "#BDBDBD"
+                                : "#C1C9CC"
 
                             Text {
                                 anchors.centerIn: parent
@@ -290,7 +330,7 @@ Popup {
                             visible: playersList.count === 0
 
                             text: "Поиск доступных игроков..."
-                            color: "#757575"
+                            color: "#C1C9CC"
                         }
                     }
 

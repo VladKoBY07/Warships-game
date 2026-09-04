@@ -26,6 +26,7 @@ qt6_add_qml_module(Warships_v0Content
         "images/DockTable.png"
         "images/ExplosionList.png"
         "images/Logo_BG.png"
+        "images/LogoTable.png"
         "images/MainMenu.png"
         "images/MenuAnimated.mp4"
         "images/RandomIcon.png"
