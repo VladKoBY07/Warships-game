@@ -360,16 +360,14 @@ Rectangle {
                                 }
 
                                 opacity: targetOpacity
-
-                                Behavior on opacity { NumberAnimation { duration: 50 } }
                             }
 
                             Image {
                                 id: wreckImage
                                 anchors.centerIn: parent
                                 z: 16
-                                width: myBoard.cellSize * 0.8
-                                height: myBoard.cellSize * 0.8
+                                width: myBoard.cellSize
+                                height: myBoard.cellSize
 
                                 source: "images/Trash.png"
 
@@ -389,7 +387,7 @@ Rectangle {
                                 opacity: targetOpacity
                                 visible: opacity > 0
 
-                                Behavior on opacity { NumberAnimation { duration: 200 } }
+                                Behavior on opacity { NumberAnimation { duration: 100 } }
                             }
 
                             Rectangle {
@@ -561,8 +559,8 @@ Rectangle {
                                 id: enemyWreckImage
                                 anchors.centerIn: parent
                                 z: 16
-                                width: enemyBoard.cellSize * 0.8
-                                height: enemyBoard.cellSize * 0.8
+                                width: enemyBoard.cellSize
+                                height: enemyBoard.cellSize
 
                                 source: "images/Trash.png"
 
@@ -582,7 +580,7 @@ Rectangle {
                                 opacity: targetOpacity
                                 visible: opacity > 0
 
-                                Behavior on opacity { NumberAnimation { duration: 200 } }
+                                Behavior on opacity { NumberAnimation { duration: 100 } }
                             }
 
                             Rectangle {
