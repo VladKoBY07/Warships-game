@@ -28,6 +28,11 @@ Popup {
     property string errorText: ""
     property bool showPlayers: false
 
+    property var testModel: ListModel {
+        ListElement { playerName: "Тестовый игрок1" }
+        ListElement { playerName: "Тестовый игрок2" }
+    }
+
     ConnectionRequestPopup {
         id: connectionRequestPopup
     }
@@ -276,7 +281,8 @@ Popup {
                         clip: true
                         spacing: 4
 
-                        model: networkManager.playersModel
+                        model: testModel
+                        //model: networkManager.playersModel
 
                         delegate: Rectangle {
                             id: playerDelegate
@@ -284,35 +290,37 @@ Popup {
                             required property string playerName
                             required property int index
 
-                            width: playersList.width
+                            width: playersList.width - 2
                             height: 44
+
+                            color: ListView.isCurrentItem ? "#0a121a" : "#0f1a26"
+
+                            border.width: 2
                             radius: 6
-
-                            color: ListView.isCurrentItem
-                                   ? "#90CAF9"
-                                   : "#C1C9CC"
-
-                            border.width:
-                                ListView.isCurrentItem ? 2 : 1
 
                             border.color:
                                 ListView.isCurrentItem
-                                ? "#1976D2"
+                                ? "#D8B13C"
                                 : "#C1C9CC"
 
                             Text {
                                 anchors.centerIn: parent
 
                                 text: playerDelegate.playerName
-                                color: "#000000"
+                                color: "#C1C9CC"
+                                font.bold: true
                             }
 
                             MouseArea {
                                 anchors.fill: parent
 
                                 onClicked: {
+                                    if(playersList.currentIndex === playerDelegate.index){
+                                        playersList.currentIndex = -1;
+                                    } else {
                                     playersList.currentIndex =
                                         playerDelegate.index
+                                    }
 
                                     console.log(
                                         "<NetworkPopup> выбран игрок:",
@@ -336,14 +344,27 @@ Popup {
 
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter
-                        spacing: 15
+                        spacing: 5
 
                         Button {
+                            id: connectButton
                             text: "Подключиться"
+                            font.pixelSize: 16
+                            leftPadding: connectButton.pressed ? 8 : 4
+                            topPadding: connectButton.pressed ? 8 : 4
 
-                            Layout.preferredWidth: 130
+                            implicitWidth: 140
+                            implicitHeight: implicitWidth / 3.4
 
                             enabled: playersList.currentIndex >= 0
+
+                            background: Image {
+                                source: connectButton.pressed? "images/ButtonBG_pressed.png" :
+                                        (connectButton.hovered && connectButton.enabled)? "images/ButtonBG_hover.png" :
+                                                            "images/ButtonBG_not_pressed.png"
+                                fillMode: Image.Stretch
+                                opacity: connectButton.enabled? 1.0 : 0.5
+                            }
 
                             onClicked: {
                                 const selectedIndex =
@@ -366,9 +387,21 @@ Popup {
                         }
 
                         Button {
+                            id: backButton
                             text: "Назад"
+                            font.pixelSize: 16
+                            leftPadding: backButton.pressed ? 8 : 4
+                            topPadding: backButton.pressed ? 8 : 4
 
-                            Layout.preferredWidth: 110
+                            implicitWidth: 140
+                            implicitHeight: implicitWidth / 3.4
+
+                            background: Image {
+                                source: backButton.pressed? "images/ButtonBG_pressed.png" :
+                                        backButton.hovered? "images/ButtonBG_hover.png" :
+                                                            "images/ButtonBG_not_pressed.png"
+                                fillMode: Image.Stretch
+                            }
 
                             onClicked: {
                                 connectionRequestPopup.close()
