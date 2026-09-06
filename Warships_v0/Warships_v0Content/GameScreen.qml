@@ -8,6 +8,18 @@ Rectangle {
     id: gameScreen
     anchors.fill: parent
 
+    SoundEffect{
+        id: gunShotSound
+        source: "sounds/gunshot.wav"
+        volume: 1.0
+    }
+
+    SoundEffect{
+        id: missSound
+        source: "sounds/miss.wav"
+        volume: 1.0
+    }
+
     Video{
         id: gamescreenBG
         anchors.fill: parent
@@ -507,6 +519,24 @@ Rectangle {
                         }
                     }
 
+                    Timer{
+                        id: shotTimer
+                        interval: 500
+                        repeat: false
+
+                        property int targetX: -1
+                        property int targetY: -1
+
+                        onTriggered: {
+                            gameController.playerShootsAt(targetX, targetY);
+
+                            var st = gameBoard.enemyCellStatusAt(targetX, targetY)
+                            if (st === 2){
+                                missSound.play()
+                            }
+                        }
+                    }
+
                     // клетки для стрельбы по врагу
                     Repeater {
                         model: enemyBoard.rows * enemyBoard.cols
@@ -531,8 +561,13 @@ Rectangle {
                                     var row = Math.floor(index / enemyBoard.cols)
                                     var st = gameBoard.enemyCellStatusAt(col, row)
 
+                                    if (lastStatus === 0 && st === 2){
+                                        enemyMissMarker.targetOpacity = 0.3
+                                    }
+
                                     if (lastStatus === 0 && (st === 3 || st === 4)) {
                                         gameContent.playExplosion(enemyBoard, col, row)
+                                        enemyWreckImage.targetOpacity = 1.0
                                     }
 
                                     lastStatus = st
@@ -551,7 +586,10 @@ Rectangle {
                                     var cellX = index % enemyBoard.cols
                                     var cellY = Math.floor(index / enemyBoard.cols)
 
-                                    gameController.playerShootsAt(cellX, cellY);
+                                    gunShotSound.play()
+                                    shotTimer.targetX = cellX
+                                    shotTimer.targetY = cellY
+                                    shotTimer.start()
                                 }
                             }
 
@@ -565,17 +603,6 @@ Rectangle {
                                 source: "images/Trash.png"
 
                                 property real targetOpacity: 0.0
-
-                                Connections {
-                                    target: gameBoard
-                                    function onBoardChanged() {
-                                        var col = index % enemyBoard.cols
-                                        var row = Math.floor(index / enemyBoard.cols)
-                                        var st = gameBoard.enemyCellStatusAt(col, row)
-
-                                        enemyWreckImage.targetOpacity = (st === 3 || st === 4) ? 1.0 : 0.0
-                                    }
-                                }
 
                                 opacity: targetOpacity
                                 visible: opacity > 0
@@ -594,21 +621,12 @@ Rectangle {
 
                                 property real targetOpacity: 0.0
 
-                                Connections {
-                                    target: gameBoard
-                                    function onBoardChanged() {
-                                        var col = index % enemyBoard.cols
-                                        var row = Math.floor(index / enemyBoard.cols)
-                                        var st = gameBoard.enemyCellStatusAt(col, row)
-
-                                        enemyMissMarker.targetOpacity = (st === 2) ? 0.3 : 0.0
-                                    }
-                                }
-
                                 opacity: targetOpacity
                                 visible: opacity > 0
 
-                                Behavior on opacity { NumberAnimation { duration: 300 } }
+                                Behavior on opacity {
+                                    NumberAnimation { duration: 300 }
+                                }
                             }
                         }
                     }

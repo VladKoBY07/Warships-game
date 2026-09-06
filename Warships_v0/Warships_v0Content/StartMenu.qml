@@ -10,6 +10,24 @@ Rectangle {
     anchors.fill: parent
     color: "#f0f4f8"
 
+    AudioOutput{
+        id: seaAOutput
+        volume: 1.0
+    }
+
+    MediaPlayer{
+        id: seaPlayer
+        source: "sounds/sea.mp3"
+        audioOutput: seaAOutput
+        loops: MediaPlayer.Infinite
+    }
+
+    // output и player для музыки
+
+    Component.onCompleted: {
+        seaPlayer.play()
+    }
+
     readonly property real refWidth: 1920
     readonly property real refHeight: 1080
     readonly property real ratio: Math.min(1.0, Math.min(width / refWidth, height / refHeight))
@@ -61,6 +79,8 @@ Rectangle {
 
 
                 onClicked: {
+                    seaPlayer.stop()
+
                     switch (index) {
                     case 0:
                         console.log("<Главное меню> Выбрана одиночная игра")
