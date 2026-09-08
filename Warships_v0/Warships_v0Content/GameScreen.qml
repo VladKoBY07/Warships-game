@@ -20,6 +20,12 @@ Rectangle {
         volume: 1.0
     }
 
+    SoundEffect{
+        id: explosionSound
+        source: "sounds/explosion.wav"
+        volume: 1.0
+    }
+
     Video{
         id: gamescreenBG
         anchors.fill: parent
@@ -417,6 +423,7 @@ Rectangle {
                                         missMarker.targetOpacity = 0.3
                                     }
                                     if ((pendingStatus === 3) || (pendingStatus === 4)) {
+                                        explosionSound.play()
                                         gameContent.playExplosion(myBoard, index % myBoard.cols, Math.floor(index / myBoard.cols))
                                         shipPart.targetOpacity = 0.0
                                         wreckImage.targetOpacity = 1.0
@@ -529,6 +536,9 @@ Rectangle {
                             if (st === 2){
                                 missSound.play()
                             }
+                            if((st === 3)||(st === 4)){
+                                explosionSound.play()
+                            }
 
                             shotUnlockTimer.start()
                         }
@@ -572,8 +582,6 @@ Rectangle {
                                     }
 
                                     if (lastStatus === 0 && (st === 3 || st === 4)) {
-                                        // звук взрыва
-
                                         gameContent.playExplosion(enemyBoard, col, row)
                                         enemyWreckImage.targetOpacity = 1.0
                                     }

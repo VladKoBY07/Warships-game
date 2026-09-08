@@ -146,10 +146,7 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
         m_gameboard->registerEnemyAnswer(x, y, result);
         switch (result) {
         case static_cast<int>(GameBoard::cellStatus::Shot):{ // Miss
-            setTurn(Turn::EnemyTurn);
-            QTimer::singleShot(800, this, [this]() {
-                continueEnemyTurn();
-            });
+            continueEnemyTurn(); // рекурсивная функция атаки ии
             break;
         }
 
@@ -178,10 +175,12 @@ void GameController::playerShootsAt(int x, int y) // пока только с и
 
 void GameController::continueEnemyTurn()
 {
+    setTurn(Turn::EnemyTurn);
+
+QTimer::singleShot(800, this, [this]() {
     int shot_status = static_cast<int>(GameBoard::cellStatus::Shot);
     int kill_status = static_cast<int>(GameBoard::cellStatus::Killed);
 
-    setTurn(Turn::EnemyTurn);
     int attackX = 0, attackY = 0;
     m_ai->calculateShoot(attackX, attackY);
 
@@ -196,16 +195,23 @@ void GameController::continueEnemyTurn()
         }
     }
 
+
+QTimer::singleShot(500, this, [this, shot_status]() { // для анимации
+
     if (m_enemyAttackResult != shot_status) {
-        // Ещё один выстрел с задержкой
+        // Ещё один выстрел
         QTimer::singleShot(800, this, [this]() {
-            continueEnemyTurn();
+        continueEnemyTurn();
         });
     } else {
+        QTimer::singleShot(500, this, [this]() {
         if (m_turn != Turn::GameOver_PlayerLost) {
             setTurn(Turn::MyTurn);
         }
+        });
     }
+});
+});
 }
 
 void GameController::sendNetworkShot(int x, int y){
