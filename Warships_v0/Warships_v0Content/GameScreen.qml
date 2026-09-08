@@ -303,6 +303,7 @@ Rectangle {
                     }
 
                     Repeater {
+                        id: myBoardCells
                         model: myBoard.rows * myBoard.cols
                         delegate: Rectangle {
                             width: myBoard.cellSize
@@ -360,17 +361,6 @@ Rectangle {
 
                                 rotation: isHorizontal ? 0 : 90
 
-                                Connections {
-                                    target: gameBoard
-                                    function onBoardChanged() {
-                                        var col = index % myBoard.cols
-                                        var row = Math.floor(index / myBoard.cols)
-                                        var st = gameBoard.myCellStatusAt(col, row)
-
-                                        shipPart.targetOpacity = (st === 3 || st === 4) ? 0.0 : 1.0
-                                    }
-                                }
-
                                 opacity: targetOpacity
                             }
 
@@ -384,17 +374,6 @@ Rectangle {
                                 source: "images/Trash.png"
 
                                 property real targetOpacity: 0.0
-
-                                Connections {
-                                    target: gameBoard
-                                    function onBoardChanged() {
-                                        var col = index % myBoard.cols
-                                        var row = Math.floor(index / myBoard.cols)
-                                        var st = gameBoard.myCellStatusAt(col, row)
-
-                                        wreckImage.targetOpacity = (st === 3 || st === 4) ? 1.0 : 0.0
-                                    }
-                                }
 
                                 opacity: targetOpacity
                                 visible: opacity > 0
@@ -413,17 +392,6 @@ Rectangle {
 
                                 property real targetOpacity: 0.0
 
-                                Connections {
-                                    target: gameBoard
-                                    function onBoardChanged() {
-                                        var col = index % myBoard.cols
-                                        var row = Math.floor(index / myBoard.cols)
-                                        var st = gameBoard.myCellStatusAt(col, row)
-
-                                        missMarker.targetOpacity = (st === 2) ? 0.3 : 0.0
-                                    }
-                                }
-
                                 opacity: targetOpacity
                                 visible: opacity > 0
 
@@ -436,6 +404,26 @@ Rectangle {
                                 return gameBoard.myCellStatusAt(col, row)
                             }
 
+                            Timer {
+                                id: cellShotTimer
+                                interval: 500
+                                repeat: false
+
+                                property int pendingStatus: -1
+
+                                onTriggered: {
+                                    if (pendingStatus === 2) {
+                                        missSound.play()
+                                        missMarker.targetOpacity = 0.3
+                                    }
+                                    if ((pendingStatus === 3) || (pendingStatus === 4)) {
+                                        gameContent.playExplosion(myBoard, index % myBoard.cols, Math.floor(index / myBoard.cols))
+                                        shipPart.targetOpacity = 0.0
+                                        wreckImage.targetOpacity = 1.0
+                                    }
+                                }
+                            }
+
                             Connections {
                                 target: gameBoard
                                 function onBoardChanged() {
@@ -443,9 +431,14 @@ Rectangle {
                                     var row = Math.floor(index / myBoard.cols)
                                     var st = gameBoard.myCellStatusAt(col, row)
 
-                                    if(lastStatus === 1 && (st === 3 || st === 4)){
-                                        gameContent.playExplosion(myBoard, col, row)
+                                    if((lastStatus === 0 && st === 2)
+                                        || (lastStatus === 1 && (st === 3 || st === 4))){ // пришел выстрел в пустую клетку или корабль
+                                        gunShotSound.play()
+
+                                        cellShotTimer.pendingStatus = st
+                                        cellShotTimer.start()
                                     }
+
                                     lastStatus = st
                                 }
                             }
@@ -485,6 +478,8 @@ Rectangle {
                     property int rows: 10
                     property int cellSize: 50
 
+                    property bool isPlayerShooting: false
+
                     Rectangle {
                         anchors.fill: parent
                         color: "#162433"
@@ -520,7 +515,7 @@ Rectangle {
                     }
 
                     Timer{
-                        id: shotTimer
+                        id: playerShotTimer
                         interval: 500
                         repeat: false
 
@@ -534,6 +529,17 @@ Rectangle {
                             if (st === 2){
                                 missSound.play()
                             }
+
+                            shotUnlockTimer.start()
+                        }
+                    }
+
+                    Timer {
+                        id: shotUnlockTimer
+                        interval: 100
+                        repeat: false
+                        onTriggered: {
+                            enemyBoard.isPlayerShooting = false
                         }
                     }
 
@@ -566,6 +572,8 @@ Rectangle {
                                     }
 
                                     if (lastStatus === 0 && (st === 3 || st === 4)) {
+                                        // звук взрыва
+
                                         gameContent.playExplosion(enemyBoard, col, row)
                                         enemyWreckImage.targetOpacity = 1.0
                                     }
@@ -579,17 +587,22 @@ Rectangle {
 
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: gameController.turn === GameController.MyTurn
+                                enabled: (gameController.turn === GameController.MyTurn) &&
+                                         (parent.lastStatus === 0) &&
+                                         !enemyBoard.isPlayerShooting
                                 cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                                 onClicked: {
                                     console.log("Enemy cell clicked")
                                     var cellX = index % enemyBoard.cols
                                     var cellY = Math.floor(index / enemyBoard.cols)
 
-                                    gunShotSound.play()
-                                    shotTimer.targetX = cellX
-                                    shotTimer.targetY = cellY
-                                    shotTimer.start()
+                                    if(enabled){
+                                        enemyBoard.isPlayerShooting = true
+                                        gunShotSound.play()
+                                        playerShotTimer.targetX = cellX
+                                        playerShotTimer.targetY = cellY
+                                        playerShotTimer.start()
+                                    }
                                 }
                             }
 
