@@ -28,10 +28,10 @@ Popup {
     property string errorText: ""
     property bool showPlayers: false
 
-    property var testModel: ListModel {
+    /*property var testModel: ListModel {
         ListElement { playerName: "Тестовый игрок1" }
         ListElement { playerName: "Тестовый игрок2" }
-    }
+    }*/
 
     ConnectionRequestPopup {
         id: connectionRequestPopup
@@ -281,8 +281,8 @@ Popup {
                         clip: true
                         spacing: 4
 
-                        model: testModel
-                        //model: networkManager.playersModel
+                        //model: testModel
+                        model: networkManager.playersModel
 
                         delegate: Rectangle {
                             id: playerDelegate
