@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtMultimedia
 
 Popup {
     id: connectionRequestPopup
@@ -18,6 +19,12 @@ Popup {
     y: Overlay.overlay.height - height - 50  // По вертикали внизу с отступом
 
     property string requestedPlayerName: ""
+
+    SoundEffect{
+        id: clickSound
+        source: "sounds/click.wav"
+        volume: 1.0
+    }
 
     background: Rectangle {
         implicitWidth: connectionRequestPopup.width
@@ -91,6 +98,7 @@ Popup {
                 }
 
                 onClicked: {
+                    clickSound.play()
                     console.log(
                         "<ConnectionRequestPopup> Принят запрос от:",
                         connectionRequestPopup.requestedPlayerName
@@ -125,6 +133,7 @@ Popup {
                 }
 
                 onClicked: {
+                    clickSound.play()
                     console.log(
                         "<ConnectionRequestPopup> Отклонён запрос от:",
                         connectionRequestPopup.requestedPlayerName

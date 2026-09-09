@@ -10,6 +10,12 @@ Rectangle {
     anchors.fill: parent
     color: "#f0f4f8"
 
+    SoundEffect{
+        id: clickSound
+        source: "sounds/click.wav"
+        volume: 1.0
+    }
+
     AudioOutput{
         id: seaAOutput
         volume: 1.0
@@ -79,6 +85,7 @@ Rectangle {
 
 
                 onClicked: {
+                    clickSound.play()
                     seaPlayer.stop()
 
                     switch (index) {

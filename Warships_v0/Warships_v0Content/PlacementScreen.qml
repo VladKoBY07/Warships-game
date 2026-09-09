@@ -9,6 +9,12 @@ Item {
     id: placementScreen
     anchors.fill: parent
 
+    SoundEffect{
+        id: clickSound
+        source: "sounds/click.wav"
+        volume: 1.0
+    }
+
     property StackView stackView: StackView.view
 
     property string overlayText: "Подготовка к бою"
@@ -299,6 +305,7 @@ Item {
             target: readyButton
 
             function onClicked() {
+                clickSound.play()
                 console.log(
                     "<PlacementScreen> readyButton: gamemode =",
                     placementScreen.currentGamemode,
@@ -428,6 +435,7 @@ Item {
         Connections {
             target: randomButton
             function onClicked() {
+                clickSound.play()
                 placementScreen.placeShipsRandomly()
             }
         }
@@ -518,6 +526,7 @@ Item {
         Connections {
             target: clearButton
             function onClicked() {
+                clickSound.play()
                 gameBoard.clearBoards()
 
                 for (var i = 0; i < shipRepeater.count; ++i) {

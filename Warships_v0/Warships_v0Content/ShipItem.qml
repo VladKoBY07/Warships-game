@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtMultimedia
 
 Item {
     id: root
@@ -27,6 +28,12 @@ Item {
 
     width: horizontal ? shipLength * cellSize : cellSize
     height: horizontal ? cellSize : shipLength * cellSize
+
+    SoundEffect{
+        id: clickSound
+        source: "sounds/click.wav"
+        volume: 1.0
+    }
 
     Image {
         id: shipImage
@@ -97,6 +104,7 @@ Item {
 
         // Поворот
         onClicked: {
+            clickSound.play()
             if (root.isInDock()) {
                 // В доке – поворот без пересечений
                 root.horizontal = !root.horizontal
@@ -151,6 +159,7 @@ Item {
         }
 
         onReleased: {
+            clickSound.play()
             var inDock = root.isInDock()
 
             if (inDock) {

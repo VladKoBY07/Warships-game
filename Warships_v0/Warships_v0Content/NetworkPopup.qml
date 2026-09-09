@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
+import QtMultimedia
 
 Popup {
     id: networkPopup
@@ -27,6 +28,12 @@ Popup {
 
     property string errorText: ""
     property bool showPlayers: false
+
+    SoundEffect{
+        id: clickSound
+        source: "sounds/click.wav"
+        volume: 1.0
+    }
 
     /*property var testModel: ListModel {
         ListElement { playerName: "Тестовый игрок1" }
@@ -216,6 +223,7 @@ Popup {
                             enabled: nameInput.text.trim().length > 0
 
                             onClicked: {
+                                clickSound.play()
                                 const name = nameInput.text.trim()
 
                                 if (name.length === 0) {
@@ -266,6 +274,7 @@ Popup {
                             implicitHeight: implicitWidth / 3.4
 
                             onClicked: {
+                                clickSound.play()
                                 networkPopup.close()
                             }
 
@@ -332,6 +341,7 @@ Popup {
                                 anchors.fill: parent
 
                                 onClicked: {
+                                    clickSound.play()
                                     if(playersList.currentIndex === playerDelegate.index){
                                         playersList.currentIndex = -1;
                                     } else {
@@ -390,6 +400,7 @@ Popup {
                             }
 
                             onClicked: {
+                                clickSound.play()
                                 const selectedIndex =
                                     playersList.currentIndex
 
@@ -433,6 +444,7 @@ Popup {
                             }
 
                             onClicked: {
+                                clickSound.play()
                                 connectionRequestPopup.close()
                                 statusPopup.close()
 
