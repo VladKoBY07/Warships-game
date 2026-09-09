@@ -26,6 +26,22 @@ Rectangle {
         volume: 1.0
     }
 
+    AudioOutput{
+        id: seaAOutput
+        volume: 1.0
+    }
+
+    MediaPlayer{
+        id: seaPlayer
+        source: "sounds/sea.mp3"
+        audioOutput: seaAOutput
+        loops: MediaPlayer.Infinite
+    }
+
+    Component.onCompleted: {
+        seaPlayer.play()
+    }
+
     Video{
         id: gamescreenBG
         anchors.fill: parent

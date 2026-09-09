@@ -50,6 +50,7 @@ qt6_add_qml_module(Warships_v0Content
         "sounds/click.wav"
         "sounds/explosion.wav"
         "sounds/gunshot.wav"
+        "sounds/MenuMusic.mp3"
         "sounds/miss.wav"
         "sounds/sea.mp3"
 )

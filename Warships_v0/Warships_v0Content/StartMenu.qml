@@ -28,10 +28,21 @@ Rectangle {
         loops: MediaPlayer.Infinite
     }
 
-    // output и player для музыки
+    AudioOutput{
+        id: musicAOutput
+        volume: 0.5
+    }
+
+    MediaPlayer{
+        id: musicPlayer
+        source: "sounds/MenuMusic.mp3"
+        audioOutput: musicAOutput
+        loops: MediaPlayer.Infinite
+    }
 
     Component.onCompleted: {
         seaPlayer.play()
+        musicPlayer.play()
     }
 
     readonly property real refWidth: 1920
@@ -85,6 +96,8 @@ Rectangle {
 
 
                 onClicked: {
+                    seaPlayer.stop()
+                    musicPlayer.stop()
                     clickSound.play()
                     seaPlayer.stop()
 

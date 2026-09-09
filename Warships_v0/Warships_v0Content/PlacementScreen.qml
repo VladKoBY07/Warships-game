@@ -15,6 +15,22 @@ Item {
         volume: 1.0
     }
 
+    AudioOutput{
+        id: seaAOutput
+        volume: 1.0
+    }
+
+    MediaPlayer{
+        id: seaPlayer
+        source: "sounds/sea.mp3"
+        audioOutput: seaAOutput
+        loops: MediaPlayer.Infinite
+    }
+
+    Component.onCompleted: {
+        seaPlayer.play()
+    }
+
     property StackView stackView: StackView.view
 
     property string overlayText: "Подготовка к бою"
@@ -333,6 +349,7 @@ Item {
 
                     console.log("<PlacementScreen> PvAI: переход на GameScreen")
 
+                    seaPlayer.stop()
                     placementScreen.stackView.push(
                         Qt.resolvedUrl("GameScreen.qml")
                     )
@@ -368,6 +385,7 @@ Item {
                 // Проверяем, готов ли соперник. Если оба готовы - начинаем игру
                 if (placementScreen.opponentReady) {
 
+                    seaPlayer.stop()
                     placementScreen.stackView.push(
                         Qt.resolvedUrl("GameScreen.qml")
                     )
