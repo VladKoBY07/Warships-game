@@ -151,7 +151,12 @@ Popup {
                         Layout.preferredWidth: 280
                         Layout.preferredHeight: 50
 
-                        placeholderText: "Например: Джек Воробей"
+                        background: Rectangle {
+                            color: "#162433"
+                            border.width: 2
+                            border.color: "#C1C9CC"
+                            radius: 5
+                        }
                         color: "#C1C9CC"
                         font.pixelSize: 16
                         maximumLength: 15
@@ -195,6 +200,12 @@ Popup {
                             id: acceptNameButton
 
                             text: "Принять"
+                            contentItem: Text{
+                                text: acceptNameButton.text
+                                color: "#C1C9CC"
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                            }
                             font.pixelSize: 16
                             leftPadding: acceptNameButton.pressed ? 8 : 4
                             topPadding: acceptNameButton.pressed ? 8 : 4
@@ -241,6 +252,12 @@ Popup {
                         Button {
                             id: rejectButton
                             text: "Отмена"
+                            contentItem: Text{
+                                text: rejectButton.text
+                                color: "#C1C9CC"
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                            }
                             font.pixelSize: 16
                             leftPadding: rejectButton.pressed ? 8 : 4
                             topPadding: rejectButton.pressed ? 8 : 4
