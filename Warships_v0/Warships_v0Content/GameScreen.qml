@@ -803,8 +803,8 @@ Rectangle {
         }
 
         ScriptAction { script: gameContent.enabled = true }
-        ScriptAction { script: introBox.anchors.top = gameScreen.top }
-        ScriptAction { script: introBox.anchors.topMargin = 10 }
+        //ScriptAction { script: introBox.anchors.top = gameScreen.top }
+        //ScriptAction { script: introBox.anchors.topMargin = 10 }
 
         PauseAnimation { duration: 250 }
 
@@ -830,6 +830,26 @@ Rectangle {
         NumberAnimation { target: introText; property: "opacity"; from: 0.0; to: 1.0; duration: 500 }
     }
 
+    // ===== Анимация победы/поражения =====
+    SequentialAnimation {
+        id: gameOverAnimation
+        running: false
+
+        ScriptAction { script: gameContent.enabled = false }
+
+        ParallelAnimation {
+            NumberAnimation { target: blurEffect; property: "amount"; from: 0.0; to: 1.0; duration: 300; easing.type: Easing.InQuad }
+            NumberAnimation { target: dimOverlay; property: "opacity"; from: 0.0; to: 0.35; duration: 300 }
+        }
+
+        PauseAnimation { duration: 3000 }
+
+        ParallelAnimation {
+            NumberAnimation { target: blurEffect; property: "amount"; from: 1.0; to: 0.0; duration: 500; easing.type: Easing.InQuad }
+            NumberAnimation { target: dimOverlay; property: "opacity"; from: 0.35; to: 0.0; duration: 500 }
+        }
+    }
+
     Connections {
         target: gameController
         function onTurnChanged() {
@@ -845,6 +865,11 @@ Rectangle {
                 turnText = "Поражение"
 
             introText.text = turnText
+
+            if (gameController.turn === GameController.GameOver_PlayerWon ||
+                gameController.turn === GameController.GameOver_PlayerLost) {
+                gameOverAnimation.start()
+            }
         }
     }
 }
