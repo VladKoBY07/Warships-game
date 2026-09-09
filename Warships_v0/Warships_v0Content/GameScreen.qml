@@ -404,11 +404,7 @@ Rectangle {
                                 Behavior on opacity { NumberAnimation { duration: 300 } }
                             }
 
-                            property int lastStatus: {
-                                var col = index % myBoard.cols
-                                var row = Math.floor(index / myBoard.cols)
-                                return gameBoard.myCellStatusAt(col, row)
-                            }
+                            property int lastStatus: -1
 
                             Timer {
                                 id: cellShotTimer
@@ -450,6 +446,10 @@ Rectangle {
                                 }
                             }
 
+                            Component.onCompleted: {
+                                    lastStatus = gameBoard.myCellStatusAt(index % myBoard.cols, Math.floor(index / myBoard.cols))
+                                }
+
                             color: "transparent"
                             border.color: "transparent";
                         }
@@ -487,6 +487,29 @@ Rectangle {
 
                     property bool isPlayerShooting: false
 
+                    Timer {
+                            id: playerShotTimer
+                            interval: 500
+                            repeat: false
+
+                            property int targetX: -1
+                            property int targetY: -1
+
+                            onTriggered: {
+                                gameController.playerShootsAt(targetX, targetY)
+                                shotUnlockTimer.start()
+                            }
+                        }
+
+                        Timer {
+                            id: shotUnlockTimer
+                            interval: 100
+                            repeat: false
+                            onTriggered: {
+                                enemyBoard.isPlayerShooting = false
+                            }
+                        }
+
                     Rectangle {
                         anchors.fill: parent
                         color: "#162433"
@@ -521,38 +544,6 @@ Rectangle {
                         }
                     }
 
-                    Timer{
-                        id: playerShotTimer
-                        interval: 500
-                        repeat: false
-
-                        property int targetX: -1
-                        property int targetY: -1
-
-                        onTriggered: {
-                            gameController.playerShootsAt(targetX, targetY);
-
-                            var st = gameBoard.enemyCellStatusAt(targetX, targetY)
-                            if (st === 2){
-                                missSound.play()
-                            }
-                            if((st === 3)||(st === 4)){
-                                explosionSound.play()
-                            }
-
-                            shotUnlockTimer.start()
-                        }
-                    }
-
-                    Timer {
-                        id: shotUnlockTimer
-                        interval: 100
-                        repeat: false
-                        onTriggered: {
-                            enemyBoard.isPlayerShooting = false
-                        }
-                    }
-
                     // клетки для стрельбы по врагу
                     Repeater {
                         model: enemyBoard.rows * enemyBoard.cols
@@ -570,6 +561,26 @@ Rectangle {
                                 return gameBoard.enemyCellStatusAt(col, row)
                             }
 
+                            Timer {
+                                id: enemyCellTimer
+                                interval: 0
+                                repeat: false
+
+                                property int pendingStatus: -1
+
+                                onTriggered: {
+                                    if (pendingStatus === 2) {
+                                        enemyMissMarker.targetOpacity = 0.3
+                                        missSound.play()
+                                    }
+                                    if (pendingStatus === 3 || pendingStatus === 4) {
+                                        explosionSound.play()
+                                        gameContent.playExplosion(enemyBoard, index % enemyBoard.cols, Math.floor(index / enemyBoard.cols))
+                                        enemyWreckImage.targetOpacity = 1.0
+                                    }
+                                }
+                            }
+
                             Connections {
                                 target: gameBoard
                                 function onBoardChanged() {
@@ -577,14 +588,10 @@ Rectangle {
                                     var row = Math.floor(index / enemyBoard.cols)
                                     var st = gameBoard.enemyCellStatusAt(col, row)
 
-                                    if (lastStatus === 0 && st === 2){
-                                        enemyMissMarker.targetOpacity = 0.3
-                                    }
-
-                                    if (lastStatus === 0 && (st === 3 || st === 4)) {
-                                        gameContent.playExplosion(enemyBoard, col, row)
-                                        enemyWreckImage.targetOpacity = 1.0
-                                    }
+                                    if (lastStatus === 0 && (st === 2 || st === 3 || st === 4)) {
+                                                        enemyCellTimer.pendingStatus = st
+                                                        enemyCellTimer.start()
+                                                    }
 
                                     lastStatus = st
                                 }
