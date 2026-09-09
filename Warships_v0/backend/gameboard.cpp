@@ -179,6 +179,8 @@ void GameBoard::registerEnemyAnswer(int x, int y, int result)
 
     cellStatus newStatus;
 
+    m_isAutoFilling = false;
+
     switch (result) {
     case static_cast<int>(cellStatus::Shot):
         newStatus = cellStatus::Shot;
@@ -224,6 +226,8 @@ int GameBoard::receiveAttack(int x, int y)
     }
 
     cellStatus &cell = m_cells[y][x];
+
+    m_isAutoFilling = false;
 
     // Промах
     if (cell == cellStatus::Clean) {
@@ -335,6 +339,8 @@ void GameBoard::kill_enemys_ship(int x, int y)
         x >= BoardSize || y >= BoardSize) {
         return;
     }
+
+    m_isAutoFilling = true;
 
     // Центральная клетка уничтоженного корабля
     e_cells[y][x] = cellStatus::Killed;
@@ -459,6 +465,8 @@ void GameBoard::kill_my_ship(int x, int y)
         return;
     }
 
+    m_isAutoFilling = true;
+
     // Центральная клетка уничтоженного корабля
     m_cells[y][x] = cellStatus::Killed;
 
@@ -573,4 +581,13 @@ void GameBoard::kill_my_ship(int x, int y)
             }
         }
     }
+}
+
+void GameBoard::setIsAutoFilling(bool value)
+{
+    if (m_isAutoFilling == value)
+        return;
+
+    m_isAutoFilling = value;
+    emit isAutoFillingChanged();
 }

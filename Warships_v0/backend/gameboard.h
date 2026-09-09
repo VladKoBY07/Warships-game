@@ -9,6 +9,8 @@ class GameBoard : public QObject
     Q_OBJECT
     friend class ai_player;
 
+    Q_PROPERTY(bool isAutoFilling READ isAutoFilling WRITE setIsAutoFilling NOTIFY isAutoFillingChanged)
+
 public:
     enum class cellStatus: uint8_t{
         Clean = 0,
@@ -62,8 +64,12 @@ public:
     {
         return m_boardRevision;
     }
+
+    bool isAutoFilling() const { return m_isAutoFilling; } // для обводки кораблей без звуков
+    void setIsAutoFilling(bool value);
 signals:
     void boardChanged();
+    void isAutoFillingChanged();
 
 private:
     void notifyBoardChanged();
@@ -71,6 +77,7 @@ private:
     cellStatus e_cells[BoardSize][BoardSize];
 
     int m_boardRevision = 0;
+    bool m_isAutoFilling = false;
 };
 
 #endif // GAMEBOARD_H

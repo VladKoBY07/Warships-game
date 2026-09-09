@@ -415,7 +415,9 @@ Rectangle {
 
                                 onTriggered: {
                                     if (pendingStatus === 2) {
-                                        missSound.play()
+                                        if (!gameBoard.isAutoFilling) {
+                                            missSound.play()
+                                        }
                                         missMarker.targetOpacity = 0.3
                                     }
                                     if ((pendingStatus === 3) || (pendingStatus === 4)) {
@@ -570,8 +572,10 @@ Rectangle {
 
                                 onTriggered: {
                                     if (pendingStatus === 2) {
+                                        if (!gameBoard.isAutoFilling) {
+                                            missSound.play()
+                                        }
                                         enemyMissMarker.targetOpacity = 0.3
-                                        missSound.play()
                                     }
                                     if (pendingStatus === 3 || pendingStatus === 4) {
                                         explosionSound.play()
@@ -589,9 +593,9 @@ Rectangle {
                                     var st = gameBoard.enemyCellStatusAt(col, row)
 
                                     if (lastStatus === 0 && (st === 2 || st === 3 || st === 4)) {
-                                                        enemyCellTimer.pendingStatus = st
-                                                        enemyCellTimer.start()
-                                                    }
+                                        enemyCellTimer.pendingStatus = st
+                                        enemyCellTimer.start()
+                                    }
 
                                     lastStatus = st
                                 }
