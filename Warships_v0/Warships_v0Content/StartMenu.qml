@@ -131,10 +131,10 @@ Rectangle {
         id: copyright_text
         y: 1019
         color: "#C1C9CC"
-        text: qsTr("2026")
+        text: qsTr("2026. Алексеев М, Бычкова М, Коваленко В.")
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 50
+        anchors.leftMargin: 10
         anchors.bottomMargin: 10
         font.pixelSize: startMenu.ratio * 20
         horizontalAlignment: Text.AlignHCenter
