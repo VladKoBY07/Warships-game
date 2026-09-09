@@ -49,10 +49,12 @@ qt6_add_qml_module(Warships_v0Content
         "images/ships/ship4_part3.png"
         "sounds/click.wav"
         "sounds/explosion.wav"
+        "sounds/fail.wav"
         "sounds/gunshot.wav"
         "sounds/MenuMusic.mp3"
         "sounds/miss.wav"
         "sounds/sea.mp3"
+        "sounds/win.wav"
 )
 
 

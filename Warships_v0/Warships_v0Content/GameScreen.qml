@@ -26,6 +26,18 @@ Rectangle {
         volume: 1.0
     }
 
+    SoundEffect{
+        id: winSound
+        source: "sounds/win.wav"
+        volume: 1.0
+    }
+
+    SoundEffect{
+        id: failSound
+        source: "sounds/fail.wav"
+        volume: 1.0
+    }
+
     AudioOutput{
         id: seaAOutput
         volume: 1.0
@@ -875,10 +887,14 @@ Rectangle {
                 turnText = "Ваш ход"
             else if (gameController.turn === GameController.EnemyTurn)
                 turnText = "Ход противника"
-            else if (gameController.turn === GameController.GameOver_PlayerWon)
+            else if (gameController.turn === GameController.GameOver_PlayerWon){
                 turnText = "Победа!"
-            else if (gameController.turn === GameController.GameOver_PlayerLost)
+                winSound.play()
+            }
+            else if (gameController.turn === GameController.GameOver_PlayerLost){
                 turnText = "Поражение"
+                failSound.play()
+            }
 
             introText.text = turnText
 
