@@ -544,6 +544,7 @@ void NetworkManager::processJson(
 
     if (type
         == NetworkProtocol::ConnectionRejected) {
+        qDebug() << "cpp: <NetworkManager> Получен отказ подключения";
 
         const QString reason =
             object["reason"].toString(
@@ -554,7 +555,12 @@ void NetworkManager::processJson(
 
         emit connectionRejected(reason);
 
-        closeCurrentSocket(false);
+        qDebug() << "cpp: <NetworkManager> Сигнал отправлен, закрываем сокет";
+
+        QTimer::singleShot(100, this, [this]() {
+            qDebug() << "cpp: <NetworkManager> Закрытие сокета";
+            closeCurrentSocket(false);
+        });
 
         return;
     }
@@ -649,11 +655,17 @@ void NetworkManager::rejectConnection()
 
     m_pendingRemoteName.clear();
 
-    QTcpSocket *socket = m_tcpSocket.data();
-    m_tcpSocket.clear();
+    connect(m_tcpSocket.data(), &QTcpSocket::bytesWritten, this,
+            [this](qint64) {
+                if (!m_tcpSocket)
+                    return;
 
-    socket->disconnectFromHost();
-    socket->deleteLater();
+                QTcpSocket *socket = m_tcpSocket.data();
+                m_tcpSocket.clear();
+
+                socket->disconnectFromHost();
+                socket->deleteLater();
+            }, Qt::SingleShotConnection);
 }
 
 
@@ -834,7 +846,7 @@ void NetworkManager::onSocketError(
 
     emit networkError(message);
 
-    closeCurrentSocket(false);
+    //closeCurrentSocket(false);
 }
 
 

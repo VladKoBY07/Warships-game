@@ -366,6 +366,12 @@ Popup {
                         Button {
                             id: connectButton
                             text: "Подключиться"
+                            contentItem: Text{
+                                text: connectButton.text
+                                color: "#C1C9CC"
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                            }
                             font.pixelSize: 16
                             leftPadding: connectButton.pressed ? 8 : 4
                             topPadding: connectButton.pressed ? 8 : 4
@@ -406,6 +412,12 @@ Popup {
                         Button {
                             id: backButton
                             text: "Назад"
+                            contentItem: Text{
+                                text: backButton.text
+                                color: "#C1C9CC"
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                            }
                             font.pixelSize: 16
                             leftPadding: backButton.pressed ? 8 : 4
                             topPadding: backButton.pressed ? 8 : 4
