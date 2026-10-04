@@ -28,7 +28,7 @@ The project was developed collaboratively, with different team members working o
 
 ## Contributions
 
-### [Maria Buchkova](https://github.com/maria11-lab)  — Frontend \& UI Integration
+### [Maria Buchkova](https://github.com/MariaBuchkova)  — Frontend \& UI Integration
 
 - Developed and integrated game screens, control windows, and interactive UI elements using Qt/QML.
 - Worked with the existing screen-loading and navigation system and connected UI controls with the game logic and server-side functionality.
@@ -87,7 +87,7 @@ The project is configured and built using CMake through Qt Creator.
 
 Collaborative project developed by FAMCS students.
 
-- [Maria Buchkova](https://github.com/maria11-lab)
+- [Maria Buchkova](https://github.com/MariaBuchkova)
 
 - [Mikhail Aliakseyeu](https://github.com/Mideninkin)
 
